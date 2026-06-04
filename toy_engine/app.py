@@ -6,9 +6,9 @@ from fastapi import FastAPI, Request as FastAPIRequest
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from src.allocator import BlockAllocator
-from src.scheduler import Request, ToyScheduler
-from src.model import MockModel
+from toy_engine.allocator import BlockAllocator
+from toy_engine.scheduler import Request, ToyScheduler
+from toy_engine.model import MockModel
 
 # 1. Khởi tạo các cấu phần hệ thống
 # Cấu hình VRAM nhỏ để dễ dàng kích hoạt cơ chế Preemption (Swap) khi chạy thử nghiệm

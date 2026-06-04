@@ -2,7 +2,7 @@ import asyncio
 import random
 import time
 from typing import Dict
-from src.scheduler import SchedulerOutput
+from toy_engine.scheduler import SchedulerOutput
 
 class MockModel:
     def __init__(self):

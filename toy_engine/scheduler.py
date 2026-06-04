@@ -1,7 +1,7 @@
 import time
 from dataclasses import dataclass, field
 from typing import Dict, List
-from src.allocator import BlockAllocator
+from toy_engine.allocator import BlockAllocator
 
 @dataclass
 class Request:
