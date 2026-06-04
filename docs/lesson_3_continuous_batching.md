@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 3: Continuous Batching & Preemption"
+sidebar_position: 5
+sidebar_label: "Bài 3: Continuous Batching & Preemption"
 ---
 
 # Bài 3: Chiến lược Lập lịch tối ưu – Continuous Batching & Preemption

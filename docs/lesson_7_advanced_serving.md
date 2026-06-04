@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 7: Kỹ thuật Tối ưu hóa Nâng cao"
+sidebar_position: 9
+sidebar_label: "Bài 7: Kỹ thuật Tối ưu hóa Nâng cao"
 ---
 
 # Bài 7: Kỹ thuật Tối ưu hóa Nâng cao cho AI Serving

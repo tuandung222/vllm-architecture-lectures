@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 6: Distributed Executor & GPU Workers"
+sidebar_position: 8
+sidebar_label: "Bài 6: Codebase: Distributed Executor & Workers"
 ---
 
 # Bài 6: Deep Dive Codebase – Distributed Executor & GPU Workers

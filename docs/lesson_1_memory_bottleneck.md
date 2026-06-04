@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 1: Autoregressive Serving & Memory Bottleneck"
+sidebar_position: 3
+sidebar_label: "Bài 1: Autoregressive Serving & KV Cache"
 ---
 
 # Bài 1: Autoregressive Serving & Thách thức Quản lý Bộ nhớ (Memory Bottleneck)

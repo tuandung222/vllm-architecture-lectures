@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 4: Async Serving, Concurrency & Streaming"
+sidebar_position: 6
+sidebar_label: "Bài 4: Async Serving & Concurrency"
 ---
 
 # Bài 4: Async Serving, Concurrency & Streaming (Kiến trúc Bất đồng bộ & Xử lý Đồng thời)

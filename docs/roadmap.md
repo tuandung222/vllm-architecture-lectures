@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Roadmap & Syllabus"
+sidebar_position: 0
+sidebar_label: "🗺️ Roadmap & Syllabus"
 ---
 
 # vLLM Internals: Deep Dive into LLM Serving Architecture
@@ -17,14 +17,14 @@ Dự án được chia làm 8 bài học chính đi kèm mã nguồn mô phỏng
 
 | Bài học | Chủ đề | Nội dung cốt lõi | Tài liệu |
 | :--- | :--- | :--- | :--- |
-| **Bài 1** | **Autoregressive Serving & Memory Bottleneck** | Phân tích pha Prefill vs Decode, Arithmetic Intensity, công thức tính KV Cache dung lượng lớn, phân mảnh VRAM. | [Bài 1 Docs](docs/lesson_1_memory_bottleneck.md) |
-| **Bài 2** | **PagedAttention & Block Allocation** | Nguyên lý Virtual Memory & Paging áp dụng vào GPU, Logical vs Physical Blocks, thuật toán PagedAttention Triton/CUDA Kernels, CoW (Copy-on-Write). | [Bài 2 Docs](docs/lesson_2_paged_attention.md) |
-| **Bài 3** | **Continuous Batching & Preemption** | Iteration-level scheduling, chiến lược thu hồi bộ nhớ (Recomputation vs Swapping), Chunked Prefill & Multi-step Execution tránh Latency Spike. | [Bài 3 Docs](docs/lesson_3_continuous_batching.md) |
-| **Bài 4** | **Async Serving, Concurrency & Streaming** | Đa nhiệm bất đồng bộ (`asyncio`), Kiến trúc đa tiến trình Decoupled Engine (v1) qua ZeroMQ IPC/Shared Memory, xử lý truyền phát token (Streaming SSE), Abort Request khi client hủy kết nối. | [Bài 4 Docs](docs/lesson_4_async_concurrency.md) |
-| **Bài 5** | **Deep Dive Codebase: Scheduler & Block Manager** | Khảo sát chi tiết mã nguồn v1 Scheduler (`scheduler.py`), quản lý hàng đợi (`request_queue.py`), quản lý khối KV Cache (`kv_cache_manager.py`). | [Bài 5 Docs](docs/lesson_5_scheduler_code.md) |
-| **Bài 6** | **Deep Dive Codebase: Executor & GPU Workers** | Mô hình phân tán đa GPU (NCCL, Ray, Multiprocessing), quy trình khởi tạo ModelRunner & Memory Profiling, cơ chế CUDA Graphs Capture giảm CPU overhead. | [Bài 6 Docs](docs/lesson_6_distributed_worker.md) |
-| **Bài 7** | **Tối ưu hóa Nâng cao cho AI Serving** | Speculative Decoding (Verify nháp song song), Multi-LoRA Serving (Punica/SGMV kernels), Lượng hóa nâng cao (FP8, INT8, AWQ, Marlin). | [Bài 7 Docs](docs/lesson_7_advanced_serving.md) |
-| **Bài 8** | **Thiết kế & Thực hành: Toy Serving Engine** | Tổng kết kiến trúc tự build và hiện thực thực tế một Serving Engine có Paged Block Allocator, Continuous Batching, Async FastAPI Server hỗ trợ Concurrent Streaming & Abort. | [Bài 8 Docs](docs/lesson_8_toy_serving_engine.md) |
+| **Bài 1** | **Autoregressive Serving & Memory Bottleneck** | Phân tích pha Prefill vs Decode, Arithmetic Intensity, công thức tính KV Cache dung lượng lớn, phân mảnh VRAM. | [Bài 1 Docs](./lesson_1_memory_bottleneck.md) |
+| **Bài 2** | **PagedAttention & Block Allocation** | Nguyên lý Virtual Memory & Paging áp dụng vào GPU, Logical vs Physical Blocks, thuật toán PagedAttention Triton/CUDA Kernels, CoW (Copy-on-Write). | [Bài 2 Docs](./lesson_2_paged_attention.md) |
+| **Bài 3** | **Continuous Batching & Preemption** | Iteration-level scheduling, chiến lược thu hồi bộ nhớ (Recomputation vs Swapping), Chunked Prefill & Multi-step Execution tránh Latency Spike. | [Bài 3 Docs](./lesson_3_continuous_batching.md) |
+| **Bài 4** | **Async Serving, Concurrency & Streaming** | Đa nhiệm bất đồng bộ (`asyncio`), Kiến trúc đa tiến trình Decoupled Engine (v1) qua ZeroMQ IPC/Shared Memory, xử lý truyền phát token (Streaming SSE), Abort Request khi client hủy kết nối. | [Bài 4 Docs](./lesson_4_async_concurrency.md) |
+| **Bài 5** | **Deep Dive Codebase: Scheduler & Block Manager** | Khảo sát chi tiết mã nguồn v1 Scheduler (`scheduler.py`), quản lý hàng đợi (`request_queue.py`), quản lý khối KV Cache (`kv_cache_manager.py`). | [Bài 5 Docs](./lesson_5_scheduler_code.md) |
+| **Bài 6** | **Deep Dive Codebase: Executor & GPU Workers** | Mô hình phân tán đa GPU (NCCL, Ray, Multiprocessing), quy trình khởi tạo ModelRunner & Memory Profiling, cơ chế CUDA Graphs Capture giảm CPU overhead. | [Bài 6 Docs](./lesson_6_distributed_worker.md) |
+| **Bài 7** | **Tối ưu hóa Nâng cao cho AI Serving** | Speculative Decoding (Verify nháp song song), Multi-LoRA Serving (Punica/SGMV kernels), Lượng hóa nâng cao (FP8, INT8, AWQ, Marlin). | [Bài 7 Docs](./lesson_7_advanced_serving.md) |
+| **Bài 8** | **Thiết kế & Thực hành: Toy Serving Engine** | Tổng kết kiến trúc tự build và hiện thực thực tế một Serving Engine có Paged Block Allocator, Continuous Batching, Async FastAPI Server hỗ trợ Concurrent Streaming & Abort. | [Bài 8 Docs](./lesson_8_toy_serving_engine.md) |
 
 ---
 
@@ -42,7 +42,7 @@ vllm-architecture-lectures/
 │   ├── lesson_6_distributed_worker.md
 │   ├── lesson_7_advanced_serving.md
 │   └── lesson_8_toy_serving_engine.md
-└── src/                               # Mã nguồn thực hành tự build Toy Serving Engine (Bài 8)
+└── toy_engine/                               # Mã nguồn thực hành tự build Toy Serving Engine (Bài 8)
     ├── allocator.py                   # Quản lý Logical/Physical Blocks & Page Table
     ├── scheduler.py                   # Lập lịch Continuous Batching (Waiting, Running, Swapped)
     ├── model.py                       # Giả lập mô hình Transformer sinh token và đo latency
@@ -64,6 +64,6 @@ vllm-architecture-lectures/
 
 ## 🚀 Bắt đầu như thế nào?
 
-Bạn nên bắt đầu đọc từ **[Bài 1: Autoregressive Serving & Memory Bottleneck](docs/lesson_1_memory_bottleneck.md)** để nắm rõ bài toán cốt lõi mà vLLM đang giải quyết, sau đó đi tuần tự theo lộ trình học tập. 
+Bạn nên bắt đầu đọc từ **[Bài 1: Autoregressive Serving & Memory Bottleneck](./lesson_1_memory_bottleneck.md)** để nắm rõ bài toán cốt lõi mà vLLM đang giải quyết, sau đó đi tuần tự theo lộ trình học tập. 
 
 Tại **Bài 8**, chúng ta sẽ cùng nhau chạy thử mã nguồn tại thư mục `/src` để kiểm nghiệm lại toàn bộ lý thuyết đã học!

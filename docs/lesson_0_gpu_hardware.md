@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 0.1: Cấu tạo Phần cứng GPU & Bản chất Vật lý của Prefill/Decode"
+sidebar_position: 2
+sidebar_label: "Bài 0.1: Cấu tạo phần cứng GPU & Prefill/Decode"
 ---
 
 # Bài 0.1: Cấu tạo Phần cứng GPU & Bản chất Vật lý của Prefill/Decode

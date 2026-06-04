@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 7.1: Chi tiết Lượng hóa – Weight-Only (AWQ) vs Activation Quantization"
+sidebar_position: 10
+sidebar_label: "Bài 7.1: Chi tiết Lượng hóa – AWQ vs Activation"
 ---
 
 # Bài 7.1: Chi tiết Lượng hóa – Weight-Only (AWQ) vs Activation Quantization

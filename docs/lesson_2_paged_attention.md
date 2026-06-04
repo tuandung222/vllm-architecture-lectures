@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 2: PagedAttention & Block Allocation"
+sidebar_position: 4
+sidebar_label: "Bài 2: PagedAttention & Block Allocation"
 ---
 
 # Bài 2: Đột phá của vLLM – Thuật toán PagedAttention & Cấp phát Khối

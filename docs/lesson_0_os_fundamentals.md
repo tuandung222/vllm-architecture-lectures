@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 0: Kiến thức Hệ điều hành bổ trợ (OS Fundamentals for AI Serving)"
+sidebar_position: 1
+sidebar_label: "Bài 0: Kiến thức Hệ điều hành bổ trợ"
 ---
 
 # Bài 0: Kiến thức Hệ điều hành bổ trợ (OS Fundamentals for AI Serving)

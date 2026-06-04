@@ -1,6 +1,6 @@
 ---
-layout: default
-title: "Bài 5: Codebase Scheduler & Block Manager"
+sidebar_position: 7
+sidebar_label: "Bài 5: Codebase: Scheduler & Block Manager"
 ---
 
 # Bài 5: Deep Dive Codebase – Bộ lập lịch Scheduler, Request Queue & Block Manager
