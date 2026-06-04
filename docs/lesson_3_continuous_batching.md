@@ -13,35 +13,69 @@ Trong bài này, chúng ta sẽ nghiên cứu cách vLLM giải quyết triệt 
 
 ## 1. Bản chất của Lập lịch: Static vs Dynamic vs Continuous Batching
 
-Để thấy rõ sự ưu việt của Continuous Batching, hãy so sánh ba phương pháp ghép lô:
+Để hiểu rõ tại sao **Continuous Batching** lại là một bước nhảy vọt về hiệu năng phục vụ LLM, hãy phân tích cơ chế hoạt động của 3 mô hình lập lịch phổ biến nhất:
 
+### 1.1. Static Batching (Gom lô tĩnh)
+* **Cơ chế**: Hệ thống chờ gom đủ một số lượng request cố định (ví dụ: $B = 2$), sau đó đóng gói chúng lại và thực hiện một chuỗi các bước forward liên tục cho đến khi **tất cả** các request trong batch hoàn thành.
+* **Hạn chế vật lý**: 
+  1. **Padding lãng phí**: Các request có prompt ngắn hơn phải được chèn thêm các token đệm (`[PAD]`) để có độ dài bằng prompt dài nhất trong lô.
+  2. **Nghẽn bởi request chậm nhất**: Nếu `Req 1` sinh xong token kết thúc (`<|endoftext|>`) sớm hơn, nó vẫn không thể trả kết quả ngay cho người dùng mà phải tiếp tục chạy trong batch (dưới dạng token padding) để chờ `Req 2` hoàn thành.
+
+#### Sơ đồ minh họa phân bổ bước chạy trong Static Batching:
 ```
-1. Static Batching (Gom lô tĩnh):
-Req 1 (Prompt 2 tokens, Output 2 tokens):  ██ ██ ░░ ░░  (Chờ Req 2 xong)
-Req 2 (Prompt 2 tokens, Output 4 tokens):  ██ ██ ██ ██
-
-2. Continuous Batching (Lập lịch mức Iteration):
-Req 1 (Prompt 2 tokens, Output 2 tokens):  ██ ██ (Hoàn thành & Giải phóng sớm!)
-Req 3 (Request mới được chèn ngay vào lô):       ██ ██ ██
-Req 2 (Prompt 2 tokens, Output 4 tokens):  ██ ██ ██ ██
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1. STATIC BATCHING (Gom lô tĩnh)                                           │
+├───────────┬──────────────┬──────────────┬──────────────┬────────────┬───────┤
+│ Request   │ Iteration 1  │ Iteration 2  │ Iteration 3  │Iteration 4 │Padding│
+├───────────┼──────────────┼──────────────┼──────────────┼────────────┼───────┤
+│ Req 1     │ PROMPT       │ TOKEN 1      │ TOKEN 2(EOS) │ [PADDING]  │  25%  │
+├───────────┼──────────────┼──────────────┼──────────────┼────────────┼───────┤
+│ Req 2     │ PROMPT       │ TOKEN 1      │ TOKEN 2      │ TOKEN 3    │   0%  │
+└───────────┴──────────────┴──────────────┴──────────────┴────────────┴───────┘
+  * LƯU Ý: Req 1 hoàn thành ở Iteration 3, nhưng vẫn phải chiếm chỗ (Padding) ở
+           Iteration 4 để chờ Req 2 hoàn thành. Không thể chèn Request mới vào.
 ```
 
-### Static Batching (Gom lô tĩnh):
-* **Cơ chế**: Chờ gom đủ số lượng request cần thiết (ví dụ $B = 4$), sau đó đưa tất cả vào mô hình.
-* **Hạn chế**: 
-  * Phải thêm padding (chèn thêm token vô nghĩa) vào các prompt ngắn để bằng prompt dài nhất trong batch.
-  * Nếu một request hoàn thành sớm, GPU vẫn phải tiếp tục tính toán các token padding cho nó cho đến khi request dài nhất trong batch hoàn thành. Lãng phí tài nguyên tính toán cực kỳ lớn.
+---
 
-### Dynamic Batching (Gom lô động):
-* **Cơ chế**: Gom các request đến trong một cửa sổ thời gian ngắn (như 10ms) thành một batch.
-* **Hạn chế**: Vẫn bị nghẽn bởi request dài nhất trong lô tương tự như Static Batching.
+### 1.2. Dynamic Batching (Gom lô động)
+* **Cơ chế**: Cải tiến từ Static Batching bằng cách thiết lập một cửa sổ thời gian ngắn (ví dụ: 10ms). Tất cả các request đến trong khoảng thời gian này sẽ được ghép thành một lô động.
+* **Hạn chế**: Dù gom lô thông minh hơn, nhưng một khi lô đã bắt đầu chạy, nó vẫn hoạt động theo cơ chế tĩnh: **GPU vẫn bị khóa chặt cho đến khi request dài nhất trong lô chạy xong**.
 
-### Continuous Batching (Iteration-level Scheduling):
-* **Cơ chế**: Thay vì lập lịch ở mức cả Request, hệ thống lập lịch **ở mức từng Iteration** (mỗi bước forward sinh 1 token).
-* Ở cuối mỗi bước forward:
-  * Hệ thống kiểm tra xem có request nào vừa hoàn thành không. Nếu có, lập tức loại nó ra khỏi batch và giải phóng KV Cache của nó.
-  * Kiểm tra hàng đợi chờ (`Waiting Queue`). Nếu GPU còn dư bộ nhớ VRAM (khối vật lý trống) và năng lực tính toán, hệ thống sẽ chèn thêm request mới vào batch ngay ở bước forward tiếp theo.
-* **Kết quả**: Không có token padding, GPU liên tục được lấp đầy bằng các token thực tế, băng thông hệ thống tăng gấp 3 - 4 lần so với Dynamic Batching.
+---
+
+### 1.3. Continuous Batching (Lập lịch mức Iteration / Cell-level)
+* **Cơ chế**: Được đề xuất trong bài báo *Orca (OSDI '22)*, cơ chế này thay đổi hoàn toàn đơn vị lập lịch. Hệ thống không lập lịch cho cả một "lô request" chạy từ đầu đến cuối, mà lập lịch **độc lập cho từng bước forward (từng Iteration)**.
+* **Cách hoạt động**:
+  1. Ở cuối mỗi Iteration (mỗi khi GPU sinh xong đúng 1 token cho các request đang chạy):
+  2. Hệ thống kiểm tra trạng thái của các request. Nếu có bất kỳ request nào hoàn thành (sinh ra token EOS hoặc chạm giới hạn), hệ thống **lập tức loại nó ra khỏi batch và giải phóng bộ nhớ**.
+  3. Ngay lập tức, hệ thống quét hàng đợi chờ (`Waiting Queue`). Nếu còn trống bộ nhớ và năng lực tính toán, nó sẽ **chèn ngay một request mới vào vị trí vừa trống** để bắt đầu chạy Prefill ở Iteration tiếp theo.
+
+#### Sơ đồ minh họa phân bổ bước chạy trong Continuous Batching:
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 2. CONTINUOUS BATCHING (Lập lịch mức Iteration)                             │
+├───────────┬──────────────┬──────────────┬──────────────┬────────────┬───────┤
+│ Request   │ Iteration 1  │ Iteration 2  │ Iteration 3  │Iteration 4 │Padding│
+├───────────┼──────────────┼──────────────┼──────────────┼────────────┼───────┤
+│ Req 1     │ PROMPT       │ TOKEN 1      │ TOKEN 2(EOS) │ -- giải phóng --  │
+├───────────┼──────────────┼──────────────┼──────────────┼────────────┼───────┤
+│ Req 2     │ PROMPT       │ TOKEN 1      │ TOKEN 2      │ TOKEN 3    │   0%  │
+├───────────┼──────────────┼──────────────┼──────────────┼────────────┼───────┤
+│ Req 3     │ -- waiting --│ -- waiting --│ -- waiting --│ PROMPT     │ chèn! │
+└───────────┴──────────────┴──────────────┴──────────────┴────────────┴───────┘
+  * LƯU Ý: Ở Iteration 4, ngay khi Req 1 hoàn thành và được giải phóng, Req 3 
+           lập tức được chèn vào vị trí trống của lô để xử lý prefill.
+```
+
+### 📊 Bảng so sánh tổng quan:
+
+| Tiêu chí | Static Batching | Dynamic Batching | Continuous Batching |
+| :--- | :--- | :--- | :--- |
+| **Đơn vị lập lịch** | Cả Request | Cửa sổ thời gian (Request) | **Từng bước sinh Token (Iteration)** |
+| **Padding Token** | Rất nhiều (Lãng phí năng lực tính toán) | Có (Giới hạn bởi request dài nhất) | **Không có (0% padding)** |
+| **Độ trễ phản hồi** | Chậm (Đợi cả lô xong) | Chậm (Đợi cả lô xong) | **Nhanh (Streaming token ngay lập tức)** |
+| **Hiệu suất GPU** | Thấp | Trung bình | **Tối đa (GPU liên tục bận rộn thực tế)** |
 
 ---
 
