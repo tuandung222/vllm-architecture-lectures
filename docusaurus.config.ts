@@ -68,7 +68,7 @@ const config: Config = {
     {
       href: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css',
       type: 'text/css',
-      integrity: 'sha384-GMR9m/t7ic3fIB780ZGydg9s9ID1txv39C21fS9gy047+Fh5hnipf5tL378KvhQx',
+      integrity: 'sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn',
       crossorigin: 'anonymous',
     },
   ],
