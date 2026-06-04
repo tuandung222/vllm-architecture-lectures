@@ -1,52 +1,51 @@
-# 🤖 Agent Playbook: Technical Handoff & Architecture Decisions
+# 🤖 Agent Playbook: Architecture, Rigor, & Pedagogical Blueprint
 
-This file is written by an AI Coding Agent to guide subsequent AI agents taking over maintenance, expansion, or troubleshooting of the **vLLM Internals** repository. It highlights critical design decisions, hardware/API gotchas, and layout structures to save context and prevent repeating resolved issues.
-
----
-
-## 1. Repository Overview & Scope
-*   **Target User**: AI Serving Engineers, Deep Learning Engineers, and Research Engineers.
-*   **Mission**: A structured textbook/lecture series analyzing the internals of the `vLLM` library (scheduling, memory, block management, multi-GPU orchestration), accompanied by a simplified Python simulator of a continuous batching serving engine.
-*   **Deployment**: Hosted on GitHub Pages at `https://tuandung222.github.io/vllm-architecture-lectures/`.
-*   **Git Author Identity Constraint**: Local git commits MUST be authored by `tuandung222` to maintain proper contributor attribution.
-    *   Command: `git config user.name "tuandung222" && git config user.email "75377334+tuandung222@users.noreply.github.com"`
+This playbook is written by a senior AI Serving & Deep Learning Expert Agent for subsequent coding agents. It defines the architectural decisions, gotchas, and **pedagogical guidelines** for maintaining the **vLLM Internals** course repository.
 
 ---
 
-## 2. Directory Layout & Critical Decoupling
-To avoid folder pollution and framework build conflicts, the repository is strictly divided:
-
-```bash
-vllm-architecture-lectures/
-├── docs/                      # Docusaurus Markdown Lectures
-│   ├── roadmap.md             # Lesson 0: Roadmap (Position: 0)
-│   ├── lesson_0_*.md          # Lesson 0/0.1: OS & GPU Hardware Background (Position: 1, 2)
-│   ├── lesson_1_*.md          # Lesson 1/1.1: Autoregressive & Arithmetic Intensity (Position: 3, 3.5)
-│   ├── lesson_2_*.md          # Lesson 2/2.1: PagedAttention & Compute Backends (Position: 4, 4.5)
-│   └── ...                    # Lessons 3-8 (Continuous Batching, Async, Code Deep Dives)
-├── toy_engine/                # Python Simulator Code (Replaced old "src/")
-│   ├── allocator.py           # Logical-to-Physical page/block allocator
-│   ├── scheduler.py           # Continuous batching scheduler
-│   ├── model.py               # Mock model simulating Prefill vs Decode delays
-│   ├── app.py                 # FastAPI engine async runner & SSE streaming server
-│   └── client.py              # Test script sending concurrent prompts & testing aborts
-├── src/                       # Docusaurus React Source (DO NOT put Python code here)
-├── static/                    # Docusaurus Static Assets
-├── .github/workflows/         # CI/CD deployment pipelines
-└── docusaurus.config.ts       # Global site configurations
-```
-
-### ⚠️ Critical Gotcha 1: The Rename of `src/` to `toy_engine/`
-*   **Problem**: Docusaurus is a React framework that expects its React components and website pages to live in `src/` by default. Initially, the Python simulator code for Lesson 8 lived in a folder named `src/`. This created immediate conflicts during Docusaurus builds.
-*   **Solution**: The Python simulator folder was renamed to `toy_engine/`. 
-*   **Action for incoming agents**: All Python imports in `toy_engine/*.py` must import from `toy_engine.xyz` instead of `src.xyz`. Do not put any Python files back into `src/`.
+## 1. Pedagogical Philosophy: Theory-to-Code Alignment
+As an educator and systems engineer, our goal is to prevent students from "hand-waving" or treating LLM serving as a black box. Every theoretical concept (Roofline Model, memory layout, scheduling) must be mapped directly to:
+1.  **The Mathematical & Hardware reality** (e.g., Arithmetic Intensity formulas, GPU memory hierarchies).
+2.  **The Toy Simulator (`toy_engine/`)** (simplifying the concepts for step-by-step logging).
+3.  **The Production Codebase (vLLM)** (referencing where these actual classes reside in the real vLLM codebase).
 
 ---
 
-## 3. GitHub Pages & API Quirks (Important)
-*   **Problem**: When configuring GitHub Pages via the GitHub REST API (`gh api`), sending a `PATCH` request to `repos/{owner}/{repo}/pages` to change the source branch from `main` to `gh-pages` returns a **404 Not Found** error (even with correct admin tokens).
-*   **Root Cause**: The GitHub REST API has undocumented quirks where changing build source branches is blocked or misrouted under `PATCH` for legacy pages setups.
-*   **Workaround**: Use a **`PUT`** request instead. Send a `PUT` request with the JSON payload:
+## 2. Core Codebase Mapping (Theory ➔ Toy ➔ Production)
+When editing or expanding lectures, subsequent agents MUST maintain this conceptual mapping so students can bridge academia, toy simulation, and industrial-grade software engineering:
+
+| Conceptual Concept | Toy Engine Implementation | Real vLLM Codebase File (v1) |
+| :--- | :--- | :--- |
+| **Virtual Memory Layout** | `toy_engine/allocator.py` (`BlockAllocator`) | `vllm/v1/core/kv_cache_manager.py` |
+| **Iteration-level Scheduling** | `toy_engine/scheduler.py` (`ToyScheduler`) | `vllm/v1/core/sched/scheduler.py` |
+| **Request Tracking & Queues** | `toy_engine/scheduler.py` (`RequestQueue`) | `vllm/v1/core/sched/request_queue.py` |
+| **Model Forward (Prefill/Decode)**| `toy_engine/model.py` (`MockModel`) | `vllm/v1/engine/core.py` |
+| **Decoupled API Server & SSE** | `toy_engine/app.py` (FastAPI Server) | `vllm/entrypoints/openai/api_server.py` |
+| **Attention Backend Dispatch** | *Concept in Lesson 2.1* | `vllm/v1/attention/selector.py` |
+
+---
+
+## 3. Mathematical & Hardware Rigor Guidelines
+Do not simplify the math or hardware concepts. Keep explanations precise:
+*   **Arithmetic Intensity ($I$)**: Always formulate it as the ratio of Compute FLOPs to Memory Access Bytes ($I = \frac{\text{FLOPs}}{\text{Bytes}}$). Explain how $I$ shifts with Batch Size ($B$) and hidden dimension ($d$) using:
+    $$I(B) = \frac{B}{1 + \frac{B}{d}} \text{ FLOP/Byte}$$
+*   **Memory Hierarchy**: Always distinguish between **HBM (High Bandwidth Memory)** (slow, off-chip VRAM) and **SRAM (Registers, L1 Cache, Shared Memory)** (fast, on-chip).
+*   **Prefill vs. Decode**: Explicitly state that Prefill is a **GEMM** operation (high arithmetic intensity, compute-bound) while Decode is a **GEMV** operation (low arithmetic intensity, memory-bound at small batch sizes).
+*   **Quantization**: Quantization changes the memory denominator ($M$), effectively shifting the Roofline **Knee Point** to the left, which enables achieving compute-bound performance at lower batch sizes.
+
+---
+
+## 4. Repository & Workspace Constraints (Critical Gotchas)
+
+### ⚠️ Gotcha A: React vs. Python Folder Conflict (`toy_engine/` vs. `src/`)
+*   **Problem**: Docusaurus expects its React components in `src/`. Having our Python simulator in `src/` broke Docusaurus builds.
+*   **Solution**: The Python engine was renamed to `toy_engine/`. 
+*   **Rule**: Keep React code in `src/` and Python simulator code in `toy_engine/`. All Python imports must use absolute imports from `toy_engine.*`.
+
+### ⚠️ Gotcha B: GitHub Pages Config Update via API (`PUT` vs. `PATCH`)
+*   **Problem**: Updating the Pages source branch from `main` to `gh-pages` using `PATCH /repos/{owner}/{repo}/pages` returns a `404 Not Found` due to GitHub API legacy routing.
+*   **Solution**: Use a **`PUT`** request to the same endpoint with the payload:
     ```json
     {
       "source": {
@@ -55,36 +54,22 @@ vllm-architecture-lectures/
       }
     }
     ```
-    This returns a successful **HTTP 204 No Content** and successfully updates the source branch.
+    This returns a successful `HTTP 204 No Content`.
 
----
-
-## 4. KaTeX CSS Subresource Integrity (SRI)
-*   **Problem**: Math formulas inside Markdown were showing "double rendering" (showing both raw LaTeX letters/MathML tags stacked, e.g. `N` and then `N=1` right below it).
-*   **Root Cause**: The KaTeX CSS stylesheet link (`katex.min.css`) failed browser Subresource Integrity (SRI) checks due to a mismatched hash, preventing the CSS from loading. Without CSS, the browser does not hide the screen-reader MathML tags.
-*   **Solution**: Ensure `docusaurus.config.ts` uses the exact correct SRI hash matching the version. For KaTeX `0.16.8`, the correct configuration is:
+### ⚠️ Gotcha C: KaTeX CSS Subresource Integrity (SRI)
+*   **Problem**: Wrong SRI hashes in `docusaurus.config.ts` block the CSS stylesheet from loading, resulting in duplicate formula rendering (raw LaTeX + MathML layout).
+*   **Solution**: Use the exact correct SRI hash for KaTeX `0.16.8`:
     ```typescript
-    stylesheets: [
-      {
-        href: 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css',
-        type: 'text/css',
-        integrity: 'sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn',
-        crossorigin: 'anonymous',
-      },
-    ]
+    integrity: 'sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn'
     ```
 
 ---
 
-## 5. Docusaurus Configuration Decisions
-*   **Floating-Point Sidebar Ordering**: Docusaurus supports floating-point values for `sidebar_position`. Supplementary files are ordered using decimals (e.g. `lesson_1_1_*.md` has `sidebar_position: 3.5` to sit cleanly between Lesson 1 (3) and Lesson 2 (4)) without shifting other files.
-*   **Blog Disabled**: `blog: false` is set in Docusaurus classic presets to keep the interface purely documentation-focused.
-*   **Mermaid Diagrams**: `@docusaurus/theme-mermaid` is installed. Ensure `markdown: { mermaid: true }` and `themes: ['@docusaurus/theme-mermaid']` are present in configuration.
-
----
-
-## 6. Active Tasks & Backlog
-If the user asks to continue developing the project, here is the current backlog:
-*   [ ] Expand **Lesson 5 & 6** codebase deep dives as vLLM v1 matures (specifically focusing on `vllm/v1/core/sched/request_queue.py` and `vllm/v1/engine/core.py`).
-*   [ ] Enhance the `toy_engine` simulator to support *Chunked Prefill* (currently simulated inside Lesson 3 markdown but not implemented in the Python code).
-*   [ ] Implement a simple *Swapping* simulation in `toy_engine/scheduler.py` via PCIe bandwidth delay emulation.
+## 5. Course Roadmaps & Backlog for Future Agents
+When tasked with writing new content or modifying code:
+1.  **Validate Locally**: Always run `npm run build` before pushing to `main`. It must compile with **0 errors and 0 warnings**.
+2.  **Maintain Sidebar Order**: Use Docusaurus decimal numbers for `sidebar_position` (e.g., `3.5` for Lesson 1.1) to avoid re-positioning existing lessons.
+3.  **Feature Backlog**:
+    *   [ ] Implement **Chunked Prefill** in `toy_engine/scheduler.py` by breaking down the mock prompt processing latency across multiple iterations.
+    *   [ ] Expand **Lesson 5 & 6** codebase deep dives as vLLM v1 matures (specifically focusing on `vllm/v1/core/sched/request_queue.py` and `vllm/v1/engine/core.py`).
+    *   [ ] Update the `toy_engine` CLI client (`client.py`) to output a visual ASCII performance chart showing throughput over time.
