@@ -1,3 +1,17 @@
+<!-- Cấu hình MathJax để render công thức Toán học (LaTeX) -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true
+    }
+  };
+</script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+
 <!-- Cấu hình và Kiểu dáng cho Thanh Điều Hướng (Navigation Bar) và Mermaid.js -->
 <style>
   /* --- KIỂU DÁNG CHO THANH ĐIỀU HƯỚNG --- */
