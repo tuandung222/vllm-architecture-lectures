@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 7: Kỹ thuật Tối ưu hóa Nâng cao"
+---
+
 # Bài 7: Kỹ thuật Tối ưu hóa Nâng cao cho AI Serving
 
 Bên cạnh các cơ chế phân trang bộ nhớ (PagedAttention) và lập lịch thông minh (Continuous Batching), vLLM còn tích hợp nhiều kỹ thuật tối ưu hóa tiên tiến nhất trong nghiên cứu hệ thống học sâu để tăng tốc độ suy luận và tiết kiệm tài nguyên. Trong bài học này, chúng ta sẽ khảo sát ba kỹ thuật nâng cao: **Speculative Decoding**, **Multi-LoRA Serving**, và các định dạng lượng hóa bộ nhớ (**Quantization**).

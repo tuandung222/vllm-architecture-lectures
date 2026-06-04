@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 1: Autoregressive Serving & Memory Bottleneck"
+---
+
 # Bài 1: Autoregressive Serving & Thách thức Quản lý Bộ nhớ (Memory Bottleneck)
 
 Trong bài học đầu tiên này, chúng ta sẽ phân tích từ góc độ hệ thống suy luận (Inference System) để hiểu rõ bản chất toán học và vật lý đằng sau những khó khăn khi chạy mô hình ngôn ngữ lớn (LLM). Tại sao việc suy luận LLM lại chậm? Tại sao bộ nhớ GPU luôn bị cạn kiệt mặc dù card đồ họa của bạn có hiệu năng tính toán khổng lồ?

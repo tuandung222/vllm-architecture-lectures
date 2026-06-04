@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 8: Thiết kế Toy Serving Engine"
+---
+
 # Bài 8: Thiết kế hệ thống Toy Serving Engine tối giản
 
 Chào mừng bạn đến với bài học cuối cùng! Ở các bài học trước, chúng ta đã tích lũy đầy đủ kiến thức lý thuyết về cách vLLM hoạt động. Để chuyển hóa lý thuyết thành kỹ năng thực tiễn, trong bài này chúng ta sẽ cùng nhau thiết kế và hiện thực một **Toy Serving Engine** tối giản viết bằng Python.

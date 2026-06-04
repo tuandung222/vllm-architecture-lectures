@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 2: PagedAttention & Block Allocation"
+---
+
 # Bài 2: Đột phá của vLLM – Thuật toán PagedAttention & Cấp phát Khối
 
 Trong bài 1, chúng ta đã hiểu lý do tại sao các hệ thống phục vụ LLM truyền thống bị giới hạn bởi vấn đề phân mảnh bộ nhớ KV Cache. Trong bài này, chúng ta sẽ phân tích giải pháp mang tính cách mạng của vLLM: **PagedAttention**. Đây là phát minh cốt lõi giúp vLLM tăng năng lực phục vụ gấp hàng chục lần bằng cách tối ưu hóa triệt để không gian bộ nhớ GPU.

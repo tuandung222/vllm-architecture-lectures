@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 3: Continuous Batching & Preemption"
+---
+
 # Bài 3: Chiến lược Lập lịch tối ưu – Continuous Batching & Preemption
 
 Trong các hệ thống Serving thông thường, để tăng băng thông (throughput), chúng ta phải gom nhiều request lại thành một lô (**batch**) trước khi đẩy vào GPU. Tuy nhiên, suy luận LLM có tính chất sinh token động: mỗi request có độ dài prompt khác nhau và kết thúc ở các bước khác nhau (do gặp token `<|endoftext|>` hoặc đạt giới hạn tối đa). 

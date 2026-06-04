@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 6: Distributed Executor & GPU Workers"
+---
+
 # Bài 6: Deep Dive Codebase – Distributed Executor & GPU Workers
 
 Khi phục vụ các mô hình ngôn ngữ lớn (LLM) có hàng chục hay hàng trăm tỷ tham số (như Llama 3 70B, Mixtral 8x22B), bản thân trọng số mô hình đã vượt quá dung lượng VRAM của một GPU đơn lẻ (ví dụ 80GB của GPU A100/H100). Do đó, hệ thống AI Serving bắt buộc phải hỗ trợ suy luận phân tán (**Distributed Inference**).

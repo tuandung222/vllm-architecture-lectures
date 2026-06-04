@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 5: Codebase Scheduler & Block Manager"
+---
+
 # Bài 5: Deep Dive Codebase – Bộ lập lịch Scheduler, Request Queue & Block Manager
 
 Trong các bài học trước, chúng ta đã nắm vững các khái niệm lý thuyết cốt lõi của vLLM. Từ bài học này, chúng ta sẽ trực tiếp đi sâu vào chi tiết hiện thực trong mã nguồn vLLM v1. Chúng ta sẽ cùng nhau bóc tách cách hoạt động của ba cấu phần cốt lõi: Bộ quản lý hàng đợi yêu cầu (`RequestQueue`), Bộ lập lịch (`Scheduler`), và Bộ quản lý KV Cache (`KVCacheManager`).

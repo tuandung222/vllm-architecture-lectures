@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Bài 4: Async Serving, Concurrency & Streaming"
+---
+
 # Bài 4: Async Serving, Concurrency & Streaming (Kiến trúc Bất đồng bộ & Xử lý Đồng thời)
 
 Một hệ thống AI serving trong môi trường sản xuất (production) phải đối mặt với áp lực xử lý hàng trăm hoặc hàng ngàn request đồng thời từ nhiều người dùng. Trong bài này, chúng ta sẽ khảo sát cách vLLM thiết kế hệ thống lập trình bất đồng bộ (`asyncio`) và kiến trúc tách biệt (**Decoupled Engine**) ở phiên bản vLLM v1 mới nhất để đạt được khả năng xử lý đồng thời cực cao mà không làm nghẽn tiến trình tính toán của GPU.
