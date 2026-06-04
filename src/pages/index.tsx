@@ -115,6 +115,13 @@ const Lectures: LectureItem[] = [
     category: 'Core Theory'
   },
   {
+    number: 'Bài 2.2',
+    title: 'RadixAttention & Prefix Caching',
+    desc: 'Cơ chế Automatic Prefix Caching (APC) qua cây tiền tố Radix Tree, thuật toán LRU Eviction giải phóng block khi cạn bộ nhớ GPU.',
+    path: '/docs/lesson_2_2_prefix_caching',
+    category: 'Core Theory'
+  },
+  {
     number: 'Bài 3',
     title: 'Continuous Batching & Preemption',
     desc: 'Giải thuật Continuous Batching, giải pháp thu hồi bộ nhớ Recomputation vs Swapping, kỹ thuật Chunked Prefill giảm giật cục độ trễ.',
@@ -122,10 +129,24 @@ const Lectures: LectureItem[] = [
     category: 'Core Theory'
   },
   {
+    number: 'Bài 3.2',
+    title: 'Chunked Prefill & Mixed Batching',
+    desc: 'Bẻ nhỏ các prompt prefill siêu dài thành các chunk kích thước cố định chạy đan xen với decode, loại bỏ hoàn toàn hiện tượng nghẽn.',
+    path: '/docs/lesson_3_2_chunked_prefill',
+    category: 'Core Theory'
+  },
+  {
     number: 'Bài 4',
     title: 'Async Serving, Concurrency & Streaming',
     desc: 'Lập trình async, cơ chế ZMQ Router-Dealer, Server-Sent Events (SSE) để stream token và hủy bỏ request (Abort) khi ngắt kết nối.',
     path: '/docs/lesson_4_async_concurrency',
+    category: 'Core Theory'
+  },
+  {
+    number: 'Bài 4.1',
+    title: 'SHM & ZeroMQ IPC trong Decoupled Engine',
+    desc: 'Phân tách tiến trình API (FastAPI) và GPU Engine. Giao tiếp qua ZeroMQ Router-Dealer và truyền tải Zero-copy qua Shared Memory.',
+    path: '/docs/lesson_4_1_shared_memory_ipc',
     category: 'Core Theory'
   },
   {
@@ -143,6 +164,20 @@ const Lectures: LectureItem[] = [
     category: 'Deep Dive Code'
   },
   {
+    number: 'Bài 6.2',
+    title: 'Song song Tensor & Giao tiếp NCCL',
+    desc: 'Mổ xẻ toán học chia ma trận Column/Row Parallel của Megatron-LM, giải thuật Ring-based All-Reduce truyền thông GPU liên kết NVLink.',
+    path: '/docs/lesson_6_2_distributed_comm_nccl',
+    category: 'Deep Dive Code'
+  },
+  {
+    number: 'Bài 6.3',
+    title: 'CUDA Graph & Shape Bucketing',
+    desc: 'Giảm thiểu CPU launch overhead bằng CUDA Graphs, kỹ thuật đắp đệm Shape Bucketing để phục vụ batch size biến đổi linh động.',
+    path: '/docs/lesson_6_3_cuda_graph_bucketing',
+    category: 'Deep Dive Code'
+  },
+  {
     number: 'Bài 7',
     title: 'Kỹ thuật Tối ưu hóa Nâng cao',
     desc: 'Phân tích Speculative Decoding (giải mã suy đoán), nạp động Multi-LoRA (Punica/SGMV kernels) và lượng hóa mô hình.',
@@ -154,6 +189,27 @@ const Lectures: LectureItem[] = [
     title: 'Chi tiết Lượng hóa: AWQ vs Activation Quantization',
     desc: 'So sánh chi tiết lượng hóa Weight-Only (AWQ) bảo vệ salient weights vs lượng hóa Activation và FP8/W8A8/KV Cache.',
     path: '/docs/lesson_7_quantization_deep_dive',
+    category: 'Optimization'
+  },
+  {
+    number: 'Bài 7.2',
+    title: 'Toán học & Cache trong Speculative Decoding',
+    desc: 'Chứng minh giải thuật Rejection Sampling kiểm chứng token nháp, luồng quản lý và rollback KV Cache tức thì ở Block Manager.',
+    path: '/docs/lesson_7_2_speculative_decoding_deep_dive',
+    category: 'Optimization'
+  },
+  {
+    number: 'Bài 7.3',
+    title: 'Multi-LoRA Serving & SGMV/Punica',
+    desc: 'Phục vụ hàng ngàn LoRA adapters đồng thời bằng custom kernels BGMV (cho decode) và SGMV (cho prefill), quản lý cache swap qua PCIe.',
+    path: '/docs/lesson_7_3_multi_lora_serving',
+    category: 'Optimization'
+  },
+  {
+    number: 'Bài 7.4',
+    title: 'Phân rã Prefill & Decode',
+    desc: 'Kiến trúc disaggregated serving tách riêng node prefill (compute-bound) và node decode (memory-bound), truyền KV Cache qua GPUDirect RDMA.',
+    path: '/docs/lesson_7_4_prefill_decode_disaggregation',
     category: 'Optimization'
   },
   {
