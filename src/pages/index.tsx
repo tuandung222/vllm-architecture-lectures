@@ -94,6 +94,13 @@ const Lectures: LectureItem[] = [
     category: 'Core Theory'
   },
   {
+    number: 'Bài 1.1',
+    title: 'Chuyển dịch Decode sang Compute-bound',
+    desc: 'Chứng minh toán học về sự thay đổi của Arithmetic Intensity theo Batch Size, cơ chế khấu hao trọng số trên SRAM và giới hạn phần cứng.',
+    path: '/docs/lesson_1_1_batch_size_compute_bound',
+    category: 'Core Theory'
+  },
+  {
     number: 'Bài 2',
     title: 'PagedAttention & Block Allocation',
     desc: 'Thiết kế PagedAttention, cơ chế Copy-on-Write (CoW) trong Parallel Sampling và cách ánh xạ logical sang physical blocks.',
