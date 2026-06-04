@@ -108,6 +108,13 @@ const Lectures: LectureItem[] = [
     category: 'Core Theory'
   },
   {
+    number: 'Bài 2.1',
+    title: 'Phân tách Kiến trúc Attention Backends',
+    desc: 'Tách biệt Memory Layout (Paged KV Cache) khỏi Compute Kernels. Phân tích FlashAttention-2, FlashInfer, Triton, và FlexAttention.',
+    path: '/docs/lesson_2_1_attention_backends',
+    category: 'Core Theory'
+  },
+  {
     number: 'Bài 3',
     title: 'Continuous Batching & Preemption',
     desc: 'Giải thuật Continuous Batching, giải pháp thu hồi bộ nhớ Recomputation vs Swapping, kỹ thuật Chunked Prefill giảm giật cục độ trễ.',
