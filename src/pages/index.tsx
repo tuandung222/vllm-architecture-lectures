@@ -199,6 +199,20 @@ const Lectures: LectureItem[] = [
     category: 'Optimization'
   },
   {
+    number: 'Bài 7.2.1',
+    title: 'Đi sâu mã nguồn: Cách vLLM hiện thực hóa Speculative Decoding',
+    desc: 'Thiết kế Worker v0 vs v1, luồng Propose-Verify trong model_runner.py, và chi tiết RejectionSampler Triton kernels.',
+    path: '/docs/lesson_7_2_1_speculative_decoding_vllm_impl',
+    category: 'Deep Dive Code'
+  },
+  {
+    number: 'Bài 7.2.2',
+    title: 'Triển khai Speculative Decoding trên Production',
+    desc: 'So sánh các phương pháp (Medusa, EAGLE, MTP, Ngram), tham số cấu hình CLI, cạm bẫy TP mismatch, và giám sát Acceptance Rate.',
+    path: '/docs/lesson_7_2_2_speculative_decoding_production',
+    category: 'Optimization'
+  },
+  {
     number: 'Bài 7.3',
     title: 'Multi-LoRA Serving & SGMV/Punica',
     desc: 'Phục vụ hàng ngàn LoRA adapters đồng thời bằng custom kernels BGMV (cho decode) và SGMV (cho prefill), quản lý cache swap qua PCIe.',
