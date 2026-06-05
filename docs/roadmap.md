@@ -23,7 +23,7 @@ Dự án được chia làm 8 bài học chính đi kèm mã nguồn mô phỏng
 | **Bài 4** | **Async Serving, Concurrency & Streaming** | Đa nhiệm bất đồng bộ (`asyncio`), Kiến trúc đa tiến trình Decoupled Engine (v1) qua ZeroMQ IPC/Shared Memory, xử lý truyền phát token (Streaming SSE), Abort Request khi client hủy kết nối. | [Bài 4 Docs](./lesson_4_async_concurrency.md), [Bài 4.1 Docs](./lesson_4_1_shared_memory_ipc.md) |
 | **Bài 5** | **Deep Dive Codebase: Scheduler & Block Manager** | Khảo sát chi tiết mã nguồn v1 Scheduler (`scheduler.py`), quản lý hàng đợi (`request_queue.py`), quản lý khối KV Cache (`kv_cache_manager.py`). | [Bài 5 Docs](./lesson_5_scheduler_code.md) |
 | **Bài 6** | **Deep Dive Codebase: Executor & GPU Workers** | Mô hình phân tán đa GPU (NCCL, Ray, Multiprocessing), quy trình khởi tạo ModelRunner & Memory Profiling, cơ chế CUDA Graphs Capture giảm CPU overhead. | [Bài 6 Docs](./lesson_6_distributed_worker.md), [Bài 6.2 Docs](./lesson_6_2_distributed_comm_nccl.md), [Bài 6.3 Docs](./lesson_6_3_cuda_graph_bucketing.md), [Bài 6.4 Docs](./lesson_6_4_ray_multiprocessing_orchestration.md), [Bài 6.5 Docs](./lesson_6_5_moe_expert_parallelism_eplb.md), [Bài 6.6 Docs](./lesson_6_6_nccl_bottlenecks_networking.md), [Bài 6.7 Docs](./lesson_6_7_context_parallelism_ring_attention.md), [Bài 6.8 Docs](./lesson_6_8_data_parallelism_replicas_routing.md) |
-| **Bài 7** | **Tối ưu hóa Nâng cao cho AI Serving** | Speculative Decoding (Verify nháp song song), Multi-LoRA Serving (Punica/SGMV kernels), Lượng hóa nâng cao (FP8, INT8, AWQ, Marlin). | [Bài 7 Docs](./lesson_7_advanced_serving.md), [Bài 7.1 Docs](./lesson_7_quantization_deep_dive.md), [Bài 7.2 Docs](./lesson_7_2_speculative_decoding_deep_dive.md), [Bài 7.2.1 Docs](./lesson_7_2_1_speculative_decoding_vllm_impl.md), [Bài 7.2.2 Docs](./lesson_7_2_2_speculative_decoding_production.md), [Bài 7.3 Docs](./lesson_7_3_multi_lora_serving.md), [Bài 7.4 Docs](./lesson_7_4_prefill_decode_disaggregation.md) |
+| **Bài 7** | **Tối ưu hóa Nâng cao cho AI Serving** | Speculative Decoding (Verify nháp song song), Multi-LoRA Serving (Punica/SGMV kernels), Lượng hóa nâng cao (FP8, INT8, AWQ, Marlin), Multimodal serving (Vision/Audio nạp dữ liệu và bộ đệm). | [Bài 7 Docs](./lesson_7_advanced_serving.md), [Bài 7.1 Docs](./lesson_7_quantization_deep_dive.md), [Bài 7.2 Docs](./lesson_7_2_speculative_decoding_deep_dive.md), [Bài 7.2.1 Docs](./lesson_7_2_1_speculative_decoding_vllm_impl.md), [Bài 7.2.2 Docs](./lesson_7_2_2_speculative_decoding_production.md), [Bài 7.3 Docs](./lesson_7_3_multi_lora_serving.md), [Bài 7.4 Docs](./lesson_7_4_prefill_decode_disaggregation.md), [Bài 7.5 Docs](./lesson_7_5_multimodal_architecture_vllm.md), [Bài 7.6 Docs](./lesson_7_6_multimodal_cache_memory.md), [Bài 7.7 Docs](./lesson_7_7_multimodal_production_gotchas.md) |
 | **Bài 8** | **Thiết kế & Thực hành: Toy Serving Engine** | Tổng kết kiến trúc tự build và hiện thực thực tế một Serving Engine có Paged Block Allocator, Continuous Batching, Async FastAPI Server hỗ trợ Concurrent Streaming & Abort. | [Bài 8 Docs](./lesson_8_toy_serving_engine.md) |
 
 ---
@@ -48,6 +48,9 @@ vllm-architecture-lectures/
 │   ├── lesson_7_advanced_serving.md
 │   ├── lesson_7_2_1_speculative_decoding_vllm_impl.md
 │   ├── lesson_7_2_2_speculative_decoding_production.md
+│   ├── lesson_7_5_multimodal_architecture_vllm.md
+│   ├── lesson_7_6_multimodal_cache_memory.md
+│   ├── lesson_7_7_multimodal_production_gotchas.md
 │   └── lesson_8_toy_serving_engine.md
 └── toy_engine/                               # Mã nguồn thực hành tự build Toy Serving Engine (Bài 8)
     ├── allocator.py                   # Quản lý Logical/Physical Blocks & Page Table

@@ -262,6 +262,27 @@ const Lectures: LectureItem[] = [
     category: 'Optimization'
   },
   {
+    number: 'Bài 7.5',
+    title: 'Kiến trúc nạp dữ liệu Multimodal trong vLLM',
+    desc: 'Cơ chế nạp visual tokens qua Multimodal Registry, inputs processing và projector mapping từ raw pixels sang embeddings.',
+    path: '/docs/lesson_7_5_multimodal_architecture_vllm',
+    category: 'Deep Dive Code'
+  },
+  {
+    number: 'Bài 7.6',
+    title: 'Quản lý bộ đệm & VRAM cho Multimodal Serving',
+    desc: 'Đệm shared memory zero-copy truyền tải tensor ảnh, và cơ chế khống chế giới hạn tài nguyên qua MultiModalBudget.',
+    path: '/docs/lesson_7_6_multimodal_cache_memory',
+    category: 'Deep Dive Code'
+  },
+  {
+    number: 'Bài 7.7',
+    title: 'Cấu hình Production & Gotchas trong Multimodal Serving',
+    desc: 'Tác dụng của các cờ CLI đặc thù, cấu hình Chunked Prefill cho VLM tránh lag, và cạm bẫy TP size với Vision Tower.',
+    path: '/docs/lesson_7_7_multimodal_production_gotchas',
+    category: 'Optimization'
+  },
+  {
     number: 'Bài 8',
     title: 'Thiết kế & Hiện thực Toy Serving Engine',
     desc: 'Tự tay lập trình một Serving Engine tối giản bằng Python: Page allocator, Continuous Scheduler, FastAPI SSE Streaming và Abort.',
