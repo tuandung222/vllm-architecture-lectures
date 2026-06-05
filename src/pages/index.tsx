@@ -288,6 +288,13 @@ const Lectures: LectureItem[] = [
     desc: 'Tự tay lập trình một Serving Engine tối giản bằng Python: Page allocator, Continuous Scheduler, FastAPI SSE Streaming và Abort.',
     path: '/docs/toy_serving_engine/lesson_8_toy_serving_engine',
     category: 'Practice'
+  },
+  {
+    number: 'Bài 9',
+    title: 'Cẩm nang Tinh chỉnh CLI & Tham chiếu Production',
+    desc: 'Giải thích chi tiết toàn bộ các tham số CLI cốt lõi của vLLM, yêu cầu kiến thức nền tảng và kinh nghiệm tuning thực chiến.',
+    path: '/docs/production_reference/lesson_9_vllm_cli_reference',
+    category: 'Optimization'
   }
 ];
 

@@ -13,7 +13,7 @@ Mục tiêu tối thượng của chuỗi bài giảng này là giúp bạn khô
 
 ## 🗺️ Lộ trình Chuỗi Bài Giảng (Roadmap)
 
-Dự án được chia làm 8 bài học chính đi kèm mã nguồn mô phỏng chi tiết:
+Dự án được chia làm 9 bài học chính đi kèm mã nguồn mô phỏng chi tiết:
 
 | Bài học | Chủ đề | Nội dung cốt lõi | Tài liệu |
 | :--- | :--- | :--- | :--- |
@@ -25,6 +25,7 @@ Dự án được chia làm 8 bài học chính đi kèm mã nguồn mô phỏng
 | **Bài 6** | **Deep Dive Codebase: Executor & GPU Workers** | Mô hình phân tán đa GPU (NCCL, Ray, Multiprocessing), quy trình khởi tạo ModelRunner & Memory Profiling, cơ chế CUDA Graphs Capture giảm CPU overhead. | [Bài 6 Docs](./05_distributed_multi_gpu/lesson_6_distributed_worker.md), [Bài 6.2 Docs](./05_distributed_multi_gpu/lesson_6_2_distributed_comm_nccl.md), [Bài 6.3 Docs](./05_distributed_multi_gpu/lesson_6_3_cuda_graph_bucketing.md), [Bài 6.4 Docs](./05_distributed_multi_gpu/lesson_6_4_ray_multiprocessing_orchestration.md), [Bài 6.5 Docs](./05_distributed_multi_gpu/lesson_6_5_moe_expert_parallelism_eplb.md), [Bài 6.6 Docs](./05_distributed_multi_gpu/lesson_6_6_nccl_bottlenecks_networking.md), [Bài 6.7 Docs](./05_distributed_multi_gpu/lesson_6_7_context_parallelism_ring_attention.md), [Bài 6.8 Docs](./05_distributed_multi_gpu/lesson_6_8_data_parallelism_replicas_routing.md) |
 | **Bài 7** | **Tối ưu hóa Nâng cao cho AI Serving** | Speculative Decoding (Verify nháp song song), Multi-LoRA Serving (Punica/SGMV kernels), Lượng hóa nâng cao (FP8, INT8, AWQ, Marlin), Multimodal serving (Vision/Audio nạp dữ liệu và bộ đệm). | [Bài 7 Docs](./07_speculative_decoding_disaggregation/lesson_7_advanced_serving.md), [Bài 7.1 Docs](./06_vram_optimization/lesson_7_quantization_deep_dive.md), [Bài 7.2 Docs](./07_speculative_decoding_disaggregation/lesson_7_2_speculative_decoding_deep_dive.md), [Bài 7.2.1 Docs](./07_speculative_decoding_disaggregation/lesson_7_2_1_speculative_decoding_vllm_impl.md), [Bài 7.2.2 Docs](./07_speculative_decoding_disaggregation/lesson_7_2_2_speculative_decoding_production.md), [Bài 7.3 Docs](./06_vram_optimization/lesson_7_3_multi_lora_serving.md), [Bài 7.4 Docs](./07_speculative_decoding_disaggregation/lesson_7_4_prefill_decode_disaggregation.md), [Bài 7.5 Docs](./08_multimodal_serving/lesson_7_5_multimodal_architecture_vllm.md), [Bài 7.6 Docs](./08_multimodal_serving/lesson_7_6_multimodal_cache_memory.md), [Bài 7.7 Docs](./08_multimodal_serving/lesson_7_7_multimodal_production_gotchas.md) |
 | **Bài 8** | **Thiết kế & Thực hành: Toy Serving Engine** | Tổng kết kiến trúc tự build và hiện thực thực tế một Serving Engine có Paged Block Allocator, Continuous Batching, Async FastAPI Server hỗ trợ Concurrent Streaming & Abort. | [Bài 8 Docs](./09_toy_serving_engine/lesson_8_toy_serving_engine.md) |
+| **Bài 9** | **Cẩm nang Tinh chỉnh CLI & Tham chiếu Production** | Tra cứu chi tiết toàn bộ các tham số CLI quan trọng trong vLLM, các kiến thức nền tảng và mẹo tuning thực chiến để kiểm soát VRAM, tránh OOM. | [Bài 9 Docs](./10_production_reference/lesson_9_vllm_cli_reference.md) |
 
 ---
 
@@ -33,26 +34,19 @@ Dự án được chia làm 8 bài học chính đi kèm mã nguồn mô phỏng
 ```bash
 vllm-architecture-lectures/
 ├── README.md                          # Giới thiệu tổng quan lộ trình học
-├── docs/                              # Thư mục lưu trữ tài liệu 8 bài giảng lý thuyết & phân tích code
-│   ├── lesson_1_memory_bottleneck.md
-│   ├── lesson_2_paged_attention.md
-│   ├── lesson_3_continuous_batching.md
-│   ├── lesson_4_async_concurrency.md
-│   ├── lesson_5_scheduler_code.md
-│   ├── lesson_6_distributed_worker.md
-│   ├── lesson_6_4_ray_multiprocessing_orchestration.md
-│   ├── lesson_6_5_moe_expert_parallelism_eplb.md
-│   ├── lesson_6_6_nccl_bottlenecks_networking.md
-│   ├── lesson_6_7_context_parallelism_ring_attention.md
-│   ├── lesson_6_8_data_parallelism_replicas_routing.md
-│   ├── lesson_7_advanced_serving.md
-│   ├── lesson_7_2_1_speculative_decoding_vllm_impl.md
-│   ├── lesson_7_2_2_speculative_decoding_production.md
-│   ├── lesson_7_5_multimodal_architecture_vllm.md
-│   ├── lesson_7_6_multimodal_cache_memory.md
-│   ├── lesson_7_7_multimodal_production_gotchas.md
-│   └── lesson_8_toy_serving_engine.md
-└── toy_engine/                               # Mã nguồn thực hành tự build Toy Serving Engine (Bài 8)
+├── docs/                              # Tài liệu biên soạn theo 10 Modules chuyên đề
+│   ├── 01_system_foundations/         # Module 1: Nền tảng Phần cứng GPU & Hệ điều hành
+│   ├── 02_single_node_memory_scheduling/ # Module 2: Quản lý Bộ nhớ & Lập lịch Đơn Node
+│   ├── 03_decoupled_engine_async/     # Module 3: Kiến trúc Engine Tách rời & Xử lý Bất đồng bộ
+│   ├── 04_vllm_core_codebase/         # Module 4: Phân tích Mã nguồn vLLM Core
+│   ├── 05_distributed_multi_gpu/      # Module 5: Kỹ thuật Phục vụ Phân tán & Đa GPU
+│   ├── 06_vram_optimization/          # Module 6: Tối ưu hóa VRAM: Lượng hóa & Phục vụ Đa LoRA
+│   ├── 07_speculative_decoding_disaggregation/ # Module 7: Giải mã Suy đoán & Kiến trúc Phân rã
+│   ├── 08_multimodal_serving/         # Module 8: Phục vụ Mô hình Đa phương thức (LMM/VLM Serving)
+│   ├── 09_toy_serving_engine/         # Module 9: Thực hành: Hiện thực hóa Serving Engine tối giản
+│   ├── 10_production_reference/       # Module 10: Tài liệu Tham chiếu Production (CLI Reference)
+│   └── roadmap.md                     # Giáo trình và mục lục tổng thể của kho khóa học
+└── toy_engine/                        # Mã nguồn thực hành tự build Toy Serving Engine (Bài 8)
     ├── allocator.py                   # Quản lý Logical/Physical Blocks & Page Table
     ├── scheduler.py                   # Lập lịch Continuous Batching (Waiting, Running, Swapped)
     ├── model.py                       # Giả lập mô hình Transformer sinh token và đo latency
