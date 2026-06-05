@@ -199,6 +199,20 @@ const Lectures: LectureItem[] = [
     category: 'Optimization'
   },
   {
+    number: 'Bài 6.7',
+    title: 'Context Parallelism & Ring Attention',
+    desc: 'Sequence dimension sharding qua cp_utils.py cho chuỗi 1M+ tokens, và cơ chế xoay vòng KV tensor qua giải thuật Ring Attention.',
+    path: '/docs/lesson_6_7_context_parallelism_ring_attention',
+    category: 'Deep Dive Code'
+  },
+  {
+    number: 'Bài 6.8',
+    title: 'Data Parallelism (DP) Replicas & API Routing',
+    desc: 'Nhân bản serving replicas để tăng throughput, các giải thuật load balancing và cơ chế Prefix-Aware Routing chống phân mảnh cache.',
+    path: '/docs/lesson_6_8_data_parallelism_replicas_routing',
+    category: 'Optimization'
+  },
+  {
     number: 'Bài 7',
     title: 'Kỹ thuật Tối ưu hóa Nâng cao',
     desc: 'Phân tích Speculative Decoding (giải mã suy đoán), nạp động Multi-LoRA (Punica/SGMV kernels) và lượng hóa mô hình.',
