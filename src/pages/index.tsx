@@ -178,6 +178,27 @@ const Lectures: LectureItem[] = [
     category: 'Deep Dive Code'
   },
   {
+    number: 'Bài 6.4',
+    title: 'Ray vs Multiprocessing: Điều phối Worker & Xử lý lỗi',
+    desc: 'Bản chất Ray actor overhead, kiến trúc MultiprocExecutor cục bộ qua ZeroMQ/Shared Memory, và cơ chế phát hiện crash GPU OOM.',
+    path: '/docs/lesson_6_4_ray_multiprocessing_orchestration',
+    category: 'Deep Dive Code'
+  },
+  {
+    number: 'Bài 6.5',
+    title: 'Phục vụ MoE trên Multi-GPU: Expert Parallelism & EPLB',
+    desc: 'Giao tiếp All-to-All trong EP routing, lệch tải chuyên gia (expert imbalance), và giải thuật cân bằng expert bằng EPLB.',
+    path: '/docs/lesson_6_5_moe_expert_parallelism_eplb',
+    category: 'Deep Dive Code'
+  },
+  {
+    number: 'Bài 6.6',
+    title: 'NCCL Bottlenecks & Tối ưu hóa mạng phục vụ',
+    desc: 'Lý do All-Reduce nghẽn ở decode, so sánh vật lý NVLink vs PCIe, và cẩm nang tinh chỉnh biến môi trường NCCL thực chiến.',
+    path: '/docs/lesson_6_6_nccl_bottlenecks_networking',
+    category: 'Optimization'
+  },
+  {
     number: 'Bài 7',
     title: 'Kỹ thuật Tối ưu hóa Nâng cao',
     desc: 'Phân tích Speculative Decoding (giải mã suy đoán), nạp động Multi-LoRA (Punica/SGMV kernels) và lượng hóa mô hình.',
