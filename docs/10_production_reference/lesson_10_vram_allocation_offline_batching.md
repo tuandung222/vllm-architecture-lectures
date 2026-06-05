@@ -9,7 +9,7 @@ Khi triển khai các mô hình ngôn ngữ lớn (LLM) và mô hình đa phươ
 1. Hệ thống bị sập do lỗi tràn bộ nhớ GPU (CUDA Out-Of-Memory - OOM) một cách ngẫu nhiên.
 2. Không biết cách thiết lập các tham số lập lịch (Scheduling) và mức độ đồng thời (Concurrency) để đạt được băng thông xử lý (Throughput) tối đa khi xử lý dữ liệu hàng loạt.
 
-Bài học này sẽ đi sâu phân tích cơ chế quản lý bộ nhớ VRAM tĩnh của vLLM, cách thức hoạt động của bộ lập lịch (Scheduler) trong việc điều phối các requests, và các bước cấu hình thực chiến để tối ưu hóa hiệu năng trong kịch bản Offline Batch Inference (Làm dữ liệu hàng loạt).
+Bài học này sẽ đi sâu phân tích cơ chế quản lý bộ nhớ VRAM tĩnh của vLLM, cách thức hoạt động của bộ lập lịch (Scheduler) trong việc điều phối các requests, và 4 chuyên đề phân tích sâu (Deep Dive) về bản chất kỹ thuật của các cơ chế tối ưu hóa cốt lõi.
 
 ---
 
@@ -68,7 +68,6 @@ vLLM kiểm soát khả năng xử lý đồng thời thông qua sự kết hợ
 Nếu các request gửi lên có ngữ cảnh quá dài (ví dụ: prompt RAG dài 8K tokens), mỗi request sẽ chiếm dụng rất nhiều blocks. Khi GPU hết sạch block KV Cache trống, Scheduler bắt buộc phải giữ các request mới ở hàng đợi `waiting` cho đến khi các request cũ hoàn thành và giải phóng bộ nhớ, ngay cả khi số lượng request đang chạy thực tế mới chỉ đạt $10$ hay $20$ (dưới rất xa mức `--max-num-seqs`).
 
 ### Chuyện gì xảy ra nếu người dùng cài đặt `--max-num-seqs` quá lớn?
-Khi người dùng đặt tham số `--max-num-seqs` vượt quá khả năng thực tế của GPU (ví dụ: đặt thành $1024$ hay $2048$ trên card GPU 24GB):
 1. **Lỗi CUDA OOM ngay khi khởi động:** Ở bước 4 (Profiling), vLLM giả lập chạy thử với số lượng sequence khổng lồ này. Lượng activation memory tăng vọt vượt quá giới hạn vật lý của GPU, gây ra lỗi OOM lập tức tại thời điểm startup.
 2. **Hiệu suất suy luận sụt giảm nghiêm trọng:** Nếu cấu hình lọt qua được bước startup, lượng bộ nhớ được PyTorch giữ chỗ cho $ActivationMemory$ quá lớn sẽ bóp nghẹt dung lượng còn lại dành cho KV Cache. Số lượng block KV Cache vật lý thực tế được cấp phát sẽ giảm đi đáng kể. Khi chạy thực tế, vLLM liên tục gặp tình trạng cạn kiệt block KV Cache, buộc Scheduler phải kích hoạt cơ chế **Preemption** (đẩy các request có độ ưu tiên thấp ra ngoài, giải phóng block của chúng sang CPU RAM hoặc bắt đầu tính toán lại từ đầu khi nạp lại) khiến tốc độ sinh từ bị gián đoạn và throughput giảm mạnh.
 
@@ -99,7 +98,109 @@ Nếu bạn gửi lên nhiều prompt mới cùng lúc và tổng số token pro
 
 ---
 
-## 4. Chiến lược Tối ưu hóa cho Xử lý Dữ liệu Hàng loạt (Offline Batching)
+## 4. Phân Tích Sâu (Deep Dive) 4 Cơ Chế Tối Ưu Hóa Cốt Lõi
+
+Để làm chủ vLLM trong sản xuất, việc hiểu sơ qua định nghĩa là chưa đủ. Dưới đây là phân tích chi tiết về bản chất vận hành ở mức phần cứng và mã nguồn của 4 tính năng quan trọng nhất.
+
+### Chuyên đề A. Bản chất kỹ thuật của `--enable-prefix-caching` (Cấu trúc Radix Tree)
+
+Prefix Caching cho phép vLLM tái sử dụng KV Cache của các phần prompt trùng lặp (ví dụ: system prompt cố định). Bản chất của cơ chế này là **Radix Tree (Cây tiền tố)**.
+
+#### 1. Nguyên lý so khớp mã Token và Bảng trang (Page Table)
+Khi một request mới gửi đến, vLLM chuyển đổi văn bản thành một chuỗi token IDs. Bộ quản lý bộ nhớ (`kv_cache_manager.py`) sẽ băm (hash) chuỗi token IDs này theo từng khối (block size, ví dụ: 16 tokens).
+
+Mỗi nút trên Radix Tree đại diện cho một khối token kèm theo hash của nó. Nếu request mới có các khối token đầu tiên khớp với một nhánh trên Radix Tree, vLLM sẽ thực hiện **Prefix Hit**:
+- Trỏ trực tiếp Page Table của request mới vào các khối vật lý tương ứng của nhánh đó trên GPU.
+- Tránh hoàn toàn việc phải chạy qua GPU forward pass để tính toán lại giá trị Key và Value của các tokens đó (tiết kiệm 100% chi phí tính toán prefill của phần trùng lặp).
+
+```
+[Mô tả Radix Tree trong vLLM]
+
+       Root (Chung)
+        │
+     [System Prompt Hash] (ref_count = 2)
+      /                \
+  [RAG Doc A]       [RAG Doc B]
+  (ref_count=1)     (ref_count=1)
+```
+
+#### 2. Cơ chế đếm tham chiếu (Reference Counting) và giải phóng LRU
+Khi nhiều request chia sẻ cùng một tiền tố, bộ quản lý block sẽ tăng biến `ref_count` (số lượng tham chiếu) của các block vật lý đó lên.
+- Chừng nào `ref_count > 0`, block vật lý đó được khóa cứng trên GPU và không bao giờ bị xóa.
+- Khi một request hoàn thành, `ref_count` của các block riêng giảm về 0. Lúc này, thay vì giải phóng ngay lập tức về bể chứa (pool), các block này được đưa vào một danh sách **LRU (Least Recently Used) Eviction Queue**.
+- Nếu GPU sắp cạn bộ nhớ và cần cấp phát block mới, vLLM sẽ tìm các block ở đầu hàng đợi LRU (ít được dùng nhất gần đây) để thu hồi và xóa dữ liệu. Nếu có request mới khớp lại các block trong LRU trước khi chúng bị xóa, block đó được nhấc ra khỏi hàng đợi LRU, tăng `ref_count` trở lại và tái sử dụng (Cache Hit).
+
+---
+
+### Chuyên đề B. Bản chất kỹ thuật của `--enable-chunked-prefill` (Giải quyết nghẽn Compute vs Memory)
+
+Trong LLM serving, hai pha tính toán có đặc tính phần cứng hoàn toàn trái ngược nhau:
+- **Prefill Phase:** Xử lý toàn bộ prompt đầu vào. GPU thực hiện phép nhân ma trận lớn (GEMM), cần năng lực tính toán cực cao để song song hóa. Đây là tác vụ **Compute-bound** (tốc độ bị giới hạn bởi hiệu năng tính toán của nhân Tensor Core).
+- **Decode Phase:** Sinh từng token mới một. GPU thực hiện phép nhân ma trận-vector nhỏ (GEMV) nhưng phải nạp đi nạp lại toàn bộ trọng số mô hình từ bộ nhớ HBM sang bộ nhớ cache SRAM tại mỗi bước. Đây là tác vụ **Memory-bound** (tốc độ bị giới hạn bởi băng thông bộ nhớ GPU).
+
+#### 1. Vấn đề "Lag cục bộ" (Prefill Stall) khi không bật Chunked Prefill
+Khi một request mới với prompt siêu dài (ví dụ: 8K tokens) nạp vào batch đang decode của 100 người dùng khác:
+- GPU phải dồn toàn lực thực hiện forward pass GEMM khổng lồ cho prompt 8K này.
+- Bước forward pass này có thể mất tới $500$ ms đến $1$ giây.
+- Trong thời gian này, 100 người dùng đang decode phải **chờ đợi hoàn toàn**, không thể sinh thêm token mới. Điều này tạo ra một cú giật lag cực lớn về Inter-Token Latency (ITL).
+
+#### 2. Cơ chế bẻ nhỏ và lập lịch đan xen (Chunked Prefill)
+Khi bật `--enable-chunked-prefill true`, vLLM chia nhỏ prompt 8K kia thành các đoạn nhỏ cố định (ví dụ: 16 chunks có kích thước $512$ tokens).
+
+Tại mỗi bước lặp (iteration) của GPU:
+- Bộ lập lịch nạp 1 chunk ($512$ tokens prefill) đan xen với 100 tokens decode của các request đang chạy.
+- GPU xử lý phối hợp cả hai tác vụ. Nhờ kích thước chunk nhỏ, thời gian forward pass mỗi bước lặp chỉ khoảng $30 - 50$ ms.
+- 100 người dùng đang decode vẫn nhận được token mới đều đặn sau mỗi vài chục mili giây, triệt tiêu hoàn toàn hiện tượng khựng lag.
+
+```
+[Lập lịch đan xen với Chunked Prefill]
+
+Step 1: [Prefill Chunk 1 (512 tokens)] + [Decode 100 tokens] -> Chạy mất 40ms
+Step 2: [Prefill Chunk 2 (512 tokens)] + [Decode 100 tokens] -> Chạy mất 40ms
+...
+Step 16: [Prefill Chunk 16 (512 tokens)] + [Decode 100 tokens] -> Hoàn thành prefill
+```
+
+---
+
+### Chuyên đề C. Bản chất kỹ thuật của `--swap-space` (Hoán vị GPU-CPU và Asynchronous Copy)
+
+Khi hệ thống bị quá tải tạm thời (ví dụ: nhiều người dùng cùng lúc sinh ra câu trả lời rất dài và GPU hết sạch block KV Cache trống), vLLM sử dụng cơ chế hoán vị (Swapping) thay vì crash OOM.
+
+#### 1. Tại sao sử dụng bộ nhớ CPU làm vùng đệm Swap?
+CPU RAM có dung lượng lớn hơn GPU VRAM rất nhiều và có giá thành rẻ hơn. vLLM đăng ký trước một vùng nhớ RAM trên CPU (mặc định 4 GiB qua `--swap-space`) và tổ chức nó thành các block có kích thước giống hệt block trên GPU.
+
+#### 2. Cơ chế Asynchronous Copy qua CUDA Streams
+Khi bộ lập lịch nhận thấy không thể cấp phát thêm block cho các request đang chạy trong danh sách `running`:
+- Nó chọn ra các request có độ ưu tiên thấp nhất và đưa vào trạng thái `swapped`.
+- vLLM ra lệnh cho GPU Worker di chuyển toàn bộ các block KV Cache của request đó từ GPU VRAM sang CPU RAM thông qua băng thông PCIe.
+- Quá trình di chuyển này được thực hiện bất đồng bộ (Asynchronous Memory Copy) bằng các nhân CUDA non-blocking streams. Tức là luồng tính toán chính của GPU vẫn tiếp tục decode cho các request khác, trong khi luồng truyền dữ liệu PCIe chạy song song ở nền để copy dữ liệu.
+- Khi các request đang chạy hoàn thành và giải phóng GPU blocks, request bị swap-out sẽ được copy ngược trở lại GPU (swap-in) để tiếp tục sinh từ.
+
+*Tác động:* Swapping giúp hệ thống chống chịu tải đỉnh (peak load) cực kỳ an toàn, nhưng vì băng thông PCIe chậm hơn nhiều so với băng thông bộ nhớ HBM nội bộ GPU, việc lạm dụng swap (thiết lập swap-space quá lớn và chạy quá tải liên tục) sẽ làm tăng đáng kể độ trễ phản hồi tổng thể của hệ thống.
+
+---
+
+### Chuyên đề D. Bản chất kỹ thuật của `--enforce-eager` (CUDA Graphs vs Eager Mode)
+
+#### 1. CPU Launch Overhead trong Deep Learning
+Trong quá trình giải mã (Decode), GPU tính toán cực kỳ nhanh (chỉ mất vài mili giây cho mỗi bước). Tuy nhiên, tại mỗi bước lặp, CPU của máy chủ phải chuẩn bị các tham số, gọi các thư viện PyTorch, và gửi các lệnh thực thi (kernels launch) xuống GPU thông qua driver CUDA.
+
+Khi thời gian chuẩn bị lệnh của CPU lớn hơn thời gian thực thi của GPU, hệ thống rơi vào trạng thái nghẽn cổ chai do CPU (**CPU-bound launch overhead**). CPU hoạt động 100% nhưng GPU liên tục phải nằm chờ lệnh, làm sụt giảm hiệu năng.
+
+#### 2. Giải pháp CUDA Graphs (Capture & Replay) và cái giá phải trả về VRAM
+CUDA Graphs giải quyết vấn đề này bằng cách chạy thử mô hình lúc khởi động, "chụp" (capture) lại toàn bộ chuỗi lệnh gọi nhân đồ thị của GPU và lưu thành một đồ thị tĩnh (static graph) duy nhất.
+- Tại mỗi bước lặp tiếp theo, CPU chỉ cần phát một lệnh chạy đồ thị tĩnh này duy nhất ("replay"). Loại bỏ hoàn toàn overhead gọi lệnh của CPU.
+- **Cái giá phải trả:** CUDA Graphs yêu cầu kích thước tensor đầu vào phải cố định. Để làm được điều này, vLLM phải tạo ra các nhóm kích thước (Shape Buckets) và phân bổ sẵn các buffer bộ nhớ tĩnh cho từng bucket. Các buffer đệm này chiếm một lượng VRAM tĩnh rất lớn (thường từ $1$ đến $2$ GiB).
+
+#### 3. Khi nào nên bật Eager Mode (`--enforce-eager true`)?
+Nếu bạn đặt `--enforce-eager true`, vLLM sẽ tắt hoàn toàn tính năng CUDA Graphs và thực thi PyTorch trực tiếp từng dòng (Eager Mode):
+- **Ưu điểm:** Lấy lại ngay lập tức $1 - 2$ GiB VRAM tĩnh bị chiếm dụng bởi CUDA Graphs để chuyển sang làm blocks KV Cache, giúp tăng thêm số lượng câu xử lý đồng thời trên các GPU có bộ nhớ nhỏ (như L4, T4 hoặc các dòng card RTX dân dụng).
+- **Nhược điểm:** Tốc độ suy luận (decode latency) của hệ thống sẽ bị chậm đi từ $10\% - 30\%$ do phải chịu launch overhead của CPU tại mỗi bước.
+
+---
+
+## 5. Chiến lược Tối ưu hóa cho Xử lý Dữ liệu Hàng loạt (Offline Batching)
 
 Khi sử dụng vLLM cho các tác vụ xử lý dữ liệu ngoại tuyến (Offline Batching) như: gắn nhãn dữ liệu, dịch thuật hàng loạt, hoặc sinh dữ liệu tổng hợp (synthetic data generation), mục tiêu cao nhất của bạn là **băng thông tổng (Throughput - số token sinh ra trên giây trên mỗi GPU)** chứ không phải thời gian phản hồi tức thì (Latency).
 
@@ -120,7 +221,7 @@ Khi sử dụng vLLM cho các tác vụ xử lý dữ liệu ngoại tuyến (Of
    # pre-allocate 90% bộ nhớ GPU cho suy luận
    llm = LLM(
        model="Qwen/Qwen2.5-7B-Instruct",
-       gpu_memory_utilization=0.90,
+       gpu_memory_util_utilization=0.90,
        max_model_len=4096
    )
 
@@ -149,7 +250,7 @@ Khi sử dụng vLLM cho các tác vụ xử lý dữ liệu ngoại tuyến (Of
 
 ---
 
-## 5. Bảng tra cứu nhanh cấu hình tinh chỉnh VRAM & Concurrency
+## 6. Bảng tra cứu nhanh cấu hình tinh chỉnh VRAM & Concurrency
 
 Dưới đây là các tham số CLI cốt lõi ảnh hưởng trực tiếp đến việc phân bổ tài nguyên bộ nhớ VRAM và khả năng xử lý đồng thời trong vLLM:
 
