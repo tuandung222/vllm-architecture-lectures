@@ -11,7 +11,7 @@ Trong bài học đầu tiên này, chúng ta sẽ phân tích từ góc độ h
 
 ## 1. Quy trình Suy luận Autoregressive: Prefill vs Decode
 
-Quá trình suy luận của một mô hình Transformer Decoder (như Llama, GPT) là **tự hồi quy (autoregressive)** — tức là để sinh ra token tiếp theo, mô hình cần tất cả các token đã sinh ra trước đó làm đầu vào. Quá trình này được chia làm hai pha hoàn toàn khác biệt về mặt tính toán:
+Quá trình suy luận của một mô hình Transformer Decoder (như Llama, GPT) là **tự hồi quy (autoregressive)** - tức là để sinh ra token tiếp theo, mô hình cần tất cả các token đã sinh ra trước đó làm đầu vào. Quá trình này được chia làm hai pha hoàn toàn khác biệt về mặt tính toán:
 
 ```mermaid
 sequenceDiagram

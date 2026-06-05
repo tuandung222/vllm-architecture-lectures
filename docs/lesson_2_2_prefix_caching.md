@@ -29,7 +29,7 @@ Request 2 (System Prompt + Question B):
 
 Tuy nhiên, thách thức lớn là: **Làm thế nào để hệ thống tự động nhận diện phần trùng lặp giữa các request bất kỳ mà không tốn chi phí đối sánh chuỗi chậm chạp?** 
 
-Câu trả lời của vLLM là **RadixAttention** — quản lý KV Cache dưới dạng một cây tiền tố **Radix Tree** trực tiếp trên bộ nhớ.
+Câu trả lời của vLLM là **RadixAttention** - quản lý KV Cache dưới dạng một cây tiền tố **Radix Tree** trực tiếp trên bộ nhớ.
 
 ---
 

@@ -5,7 +5,7 @@ sidebar_label: "Bài 0.1: Cấu tạo phần cứng GPU & Prefill/Decode"
 
 # Bài 0.1: Cấu tạo Phần cứng GPU & Bản chất Vật lý của Prefill/Decode
 
-Để tối ưu hóa phần mềm Serving, ta phải hiểu rõ cơ cấu hoạt động của phần cứng thực thi bên dưới — GPU. Trong bài học này, chúng ta sẽ phân tích kiến trúc phần cứng của GPU (từ SMs, Tensor Cores đến phân cấp bộ nhớ HBM/SRAM) và dùng mô hình toán học **Roofline Model** để giải thích bản chất vật lý của hai pha **Prefill** (Compute-bound) và **Decode** (Memory-bound).
+Để tối ưu hóa phần mềm Serving, ta phải hiểu rõ cơ cấu hoạt động của phần cứng thực thi bên dưới - GPU. Trong bài học này, chúng ta sẽ phân tích kiến trúc phần cứng của GPU (từ SMs, Tensor Cores đến phân cấp bộ nhớ HBM/SRAM) và dùng mô hình toán học **Roofline Model** để giải thích bản chất vật lý của hai pha **Prefill** (Compute-bound) và **Decode** (Memory-bound).
 
 ---
 
@@ -28,10 +28,10 @@ Một GPU hiện đại (như NVIDIA A100 hoặc H100) không phải là một C
                                      v
    +-------------------------------------------------------------------+
    |             Streaming Multiprocessors (SM) - Nhân GPU             |
-   |  - L1 Cache / Shared Memory (SRAM) - Siêu nhanh (cỡ KB/MB, >10TB/s)|
-   |  - Registers (Thanh ghi)                                          |
-   |  - CUDA Cores (Phép tính FP32/INT32 thông thường)                 |
-   |  - Tensor Cores (Phép nhân ma trận FP16/BF16/FP8 siêu tốc)        |
+   | - L1 Cache / Shared Memory (SRAM) - Siêu nhanh (cỡ KB/MB, >10TB/s)|
+   | - Registers (Thanh ghi)                                          |
+   | - CUDA Cores (Phép tính FP32/INT32 thông thường)                 |
+   | - Tensor Cores (Phép nhân ma trận FP16/BF16/FP8 siêu tốc)        |
    +-------------------------------------------------------------------+
 ```
 

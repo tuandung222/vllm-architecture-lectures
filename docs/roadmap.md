@@ -5,7 +5,7 @@ sidebar_label: "🗺️ Roadmap & Syllabus"
 
 # vLLM Internals: Deep Dive into LLM Serving Architecture
 
-Chào mừng bạn đến với kho lưu trữ bài giảng **vLLM Internals: Deep Dive into LLM Serving Architecture**. Chuỗi bài giảng này được thiết kế đặc biệt cho các **AI Serving Engineer, Deep Learning Engineer và Research Engineer** muốn tìm hiểu sâu sắc về cách thức hoạt động bên trong của vLLM — thư viện phục vụ mô hình ngôn ngữ lớn (LLM Serving) phổ biến và tối ưu nhất hiện nay.
+Chào mừng bạn đến với kho lưu trữ bài giảng **vLLM Internals: Deep Dive into LLM Serving Architecture**. Chuỗi bài giảng này được thiết kế đặc biệt cho các **AI Serving Engineer, Deep Learning Engineer và Research Engineer** muốn tìm hiểu sâu sắc về cách thức hoạt động bên trong của vLLM - thư viện phục vụ mô hình ngôn ngữ lớn (LLM Serving) phổ biến và tối ưu nhất hiện nay.
 
 Mục tiêu tối thượng của chuỗi bài giảng này là giúp bạn không chỉ **hiểu chi tiết từng dòng code** của vLLM, mà còn **nắm vững các nguyên lý thiết kế hệ thống suy luận** để trong tương lai có thể tự xây dựng một hệ thống AI Serving tối ưu của riêng mình.
 
