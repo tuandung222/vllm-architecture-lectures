@@ -48,11 +48,31 @@ Trong kiến trúc tách biệt tiến trình của vLLM v1:
                                                               ▼
 ```
 
-### Cơ chế đồng bộ hóa bộ đệm chéo tiến trình:
-1.  **Ghi vào Shared Memory**: Khi P0 tiền xử lý hoặc nhận diện ảnh mới, nó gọi `ShmObjectStoreSenderCache.get_and_update_item()`. Nếu cache miss, P0 sẽ ghi trực tiếp tensor đặc trưng ảnh vào bộ đệm vòng dùng chung của hệ điều hành `SingleWriterShmRingBuffer` (sử dụng Msgpack để tuần tự hóa nhanh).
-2.  **Gửi con trỏ địa chỉ**: Thay vì truyền toàn bộ tensor đặc trưng qua ZeroMQ IPC, P0 chỉ gửi một tin nhắn siêu nhỏ chứa địa chỉ vùng nhớ vật lý (`address`) và mã định danh (`monotonic_id`).
-3.  **Đọc trực tiếp (Zero-Copy)**: Tại GPU Worker (P1), lớp `ShmObjectStoreReceiverCache` nhận thông tin địa chỉ và trỏ trực tiếp đến vùng nhớ Shared Memory đó để nạp tensor vào Vision Tower của mô hình, hoàn toàn không tốn chi phí sao chép hay di chuyển dữ liệu chéo tiến trình (Zero-copy).
-4.  **Chính sách trục xuất (LRU Eviction)**: Cả P0 và P1 duy trì các bản sao cache metadata đồng bộ. Khi bộ đệm đầy, thuật toán LRU sẽ tự động giải phóng vùng nhớ Shared Memory ở cả hai phía đồng bộ mà không cần truyền thông tin phối hợp.
+### 2.1. Phân tích chi tiết luồng Zero-Copy IPC qua Shared Memory
+
+Trong các hệ thống phân tán thông thường, việc truyền các tensor lớn (ví dụ ảnh pixel thô hoặc đặc trưng ảnh) giữa hai tiến trình khác nhau thường sử dụng TCP Socket hoặc Unix Domain Socket. Tuy nhiên, phương pháp này đòi hỏi:
+1.  **Tuần tự hóa (Serialization)** tại P0.
+2.  **Sao chép bộ nhớ (Memory Copy)** từ không gian người dùng (User space) của P0 sang không gian nhân hệ điều hành (Kernel space), sau đó từ Kernel space sang User space của P1.
+3.  **Giải tuần tự hóa (Deserialization)** tại P1.
+
+Đối với dữ liệu ảnh độ phân giải cao hoặc chuỗi khung hình video, chi phí sao chép bộ nhớ chéo tiến trình (IPC Overhead) này cực kỳ lớn, gây thắt nút cổ chai nghiêm trọng tại CPU.
+
+Để giải quyết triệt để, vLLM áp dụng giải pháp **Zero-Copy Shared Memory**:
+
+*   **Vùng nhớ dùng chung (POSIX Shared Memory)**: vLLM ánh xạ cùng một vùng nhớ vật lý của hệ thống (RAM) vào không gian địa chỉ ảo của cả hai tiến trình P0 và P1.
+*   **Cơ chế ghi đơn (SingleWriterShmRingBuffer)**: P0 đóng vai trò là Writer duy nhất ghi tuần tự vào bộ đệm vòng (Ring Buffer) dùng chung này. Khi nhận ảnh mới, P0 ghi trực tiếp dữ liệu thô vào buffer.
+*   **Truyền tin nhắn ZMQ siêu nhẹ**: Thay vì truyền toàn bộ dữ liệu Tensor qua ZeroMQ socket, P0 chỉ gửi một gói tin JSON/Msgpack nhỏ chứa metadata bao gồm:
+    *   Địa chỉ con trỏ của khối bộ nhớ (`address`).
+    *   Kích thước và hình dạng của tensor (`shape`, `dtype`).
+    *   Mã định danh duy nhất tăng dần (`monotonic_id`).
+*   **Khởi tạo Tensor Zero-Copy**: Tại tiến trình P1, `ShmObjectStoreReceiverCache` nhận thông tin địa chỉ. Nó sử dụng thư viện thích hợp (như NumPy và PyTorch) để map trực tiếp con trỏ vùng nhớ Shared Memory đó thành một CPU Tensor thông qua `torch.from_numpy()` mà không tốn bất kỳ chu kỳ CPU nào cho việc copy dữ liệu (Zero-copy). Sau đó, tensor này mới được chuyển (transfer) lên GPU để đưa vào mô hình.
+
+### 2.2. Cơ chế đồng bộ hóa bộ đệm chéo tiến trình:
+
+1.  **Ghi vào Shared Memory**: Khi P0 tiền xử lý hoặc nhận diện ảnh mới, nó gọi `ShmObjectStoreSenderCache.get_and_update_item()`. Nếu cache miss, P0 sẽ ghi trực tiếp tensor đặc trưng ảnh vào bộ đệm vòng dùng chung của hệ điều hành `SingleWriterShmRingBuffer`.
+2.  **Gửi con trỏ địa chỉ**: Thay vì truyền toàn bộ tensor đặc trưng qua ZeroMQ IPC, P0 chỉ gửi tin nhắn nhỏ chứa địa chỉ vùng nhớ vật lý (`address`) và mã định danh (`monotonic_id`).
+3.  **Đọc trực tiếp (Zero-Copy)**: Tại GPU Worker (P1), lớp `ShmObjectStoreReceiverCache` nhận thông tin địa chỉ và trỏ trực tiếp đến vùng nhớ Shared Memory đó để nạp tensor vào Vision Tower của mô hình.
+4.  **Chính sách trục xuất (LRU Eviction)**: Cả P0 và P1 duy trì các bản sao cache metadata đồng bộ. Khi bộ đệm đầy, thuật toán LRU sẽ tự động giải phóng vùng nhớ Shared Memory ở cả hai phía đồng bộ mà không cần truyền thông tin phối hợp chéo.
 
 ---
 

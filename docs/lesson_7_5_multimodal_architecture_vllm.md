@@ -73,10 +73,32 @@ sequenceDiagram
     Note over LLM: Thực thi Prefill & Decode bình thường
 ```
 
-1.  **Tiền xử lý ở API**: API Server nhận ảnh và chuyển cho [parse.py](file:///Users/admin/TuanDung/repos/vllm/vllm/multimodal/parse.py) để phân tích cú pháp. Sau đó, `MultiModalProcessor` tiền xử lý ảnh về kích thước cố định (ví dụ $448 \times 448$ pixels) ở dạng Tensor có kích thước `[Batch, Channel, Height, Width]`.
+1.  **Tiền xử lý ở API**: API Server nhận ảnh và chuyển cho [parse.py](file:///Users/admin/TuanDung/repos/vllm/vllm/multimodal/parse.py) để phân tích cú pháp. Sau đó, `MultiModalProcessor` tiền xử lý ảnh về kích thước cố định ở dạng Tensor có kích thước `[Batch, Channel, Height, Width]`.
 2.  **Forward trên Vision Tower**: Tensor pixel được đẩy vào GPU để Vision Tower tính toán. Kết quả đầu ra là một tensor đặc trưng thị giác.
 3.  **Ánh xạ qua Projector**: Tầng MLP Projector chiếu tensor này thành một chuỗi các visual token embeddings có cùng chiều ẩn (hidden dimension) với LLM.
 4.  **Ghép nối (Interleaving)**: vLLM xác định vị trí của token placeholder đặc biệt (ví dụ `<image>`) trong prompt của người dùng. Hệ thống sẽ thay thế placeholder này bằng chuỗi visual token embeddings đã được chiếu. Chuỗi embedding hỗn hợp này sau đó được nạp trực tiếp vào các layers Decoder của mô hình ngôn ngữ.
+
+### 3.1. Tính toán số lượng Visual Tokens thực tế (Visual Token Budgeting)
+
+Trong các mô hình VLM, số lượng visual tokens không phải là cố định mà phụ thuộc hoàn toàn vào cấu trúc phần cứng của bộ mã hóa thị giác (Vision Tower). Chúng ta có công thức tính số lượng patch thô được trích xuất từ một ảnh đầu vào có kích thước $H \times W$ (Chiều cao $\times$ Chiều rộng) thông qua bộ mã hóa có kích thước Patch là $P \times P$:
+
+$$N_{\text{raw\_patches}} = \left( \frac{H}{P} \right) \times \left( \frac{W}{P} \right)$$
+
+Nếu mô hình áp dụng thêm kỹ thuật giảm mẫu (downsampling hoặc pooling) thông qua Projector với hệ số thu gọn (Pooling Factor) là $F$, số lượng visual tokens thực tế đi vào mô hình LLM là:
+
+$$N_{\text{visual\_tokens}} = \frac{N_{\text{raw\_patches}}}{F}$$
+
+**Ví dụ thực tế**:
+*   **Mô hình LLaVA-1.5**: Sử dụng Vision Tower ViT-L/14 với kích thước ảnh đầu vào cố định $336 \times 336$ pixels và Patch size $14 \times 14$. Số lượng patch thô sinh ra là $(336/14) \times (336/14) = 24 \times 24 = 576$ patches. LLaVA không dùng pooling bổ sung ở projector, do đó mỗi bức ảnh sẽ tạo ra chính xác $576$ visual tokens.
+*   **Mô hình Qwen2-VL**: Hỗ trợ độ phân giải động (Dynamic Resolution). Khi một ảnh có kích thước $448 \times 448$ pixels đi vào, patch size là $14$, ta có $(448/14) \times (448/14) = 1024$ patches. Qwen2-VL áp dụng thêm một lớp 2D Rotary Position Embedding kết hợp với downsampling 2x2 ($F = 4$). Số lượng visual tokens cuối cùng đi vào LLM là $1024 / 4 = 256$ tokens.
+
+### 3.2. Cơ chế ghép nối (Interleaving) và Thay thế Placeholder
+
+Khi người dùng gửi prompt `"Mô tả bức ảnh này: <image>"`:
+1.  **Tokenizer**: Tokenizer chuyển văn bản thành chuỗi Token IDs. Token `<image>` được coi là một token placeholder đặc biệt (ví dụ: ID = `151859` trong Qwen).
+2.  **Embedding Lookup**: Đối với các token văn bản, mô hình thực hiện tra cứu bảng embedding thông thường (`nn.Embedding`).
+3.  **Thay thế Tensor (Tensor Replacement)**: Tại lớp mô hình đầu tiên, vLLM chặn luồng dữ liệu và phát hiện vị trí của token placeholder `<image>`. Hệ thống sẽ thay thế vector embedding tại vị trí đó bằng toàn bộ chuỗi Tensor Visual Token Embeddings kích thước $[N_{\text{visual\_tokens}}, d_{\text{model}}]$ đã được tính toán từ Vision Tower và Projector.
+4.  **Attention Mask**: Mặt nạ chú ý (Attention Mask) được mở rộng tương ứng để đảm bảo các token văn bản phía sau có thể tham chiếu đầy đủ đến toàn bộ các visual tokens của bức ảnh.
 
 ---
 

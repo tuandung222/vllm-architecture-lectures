@@ -28,6 +28,18 @@ Khi chạy API Server của vLLM phục vụ mô hình đa phương thức, bạ
 *   *Ý nghĩa*: Kích thước tối đa cho một vật thể đơn lẻ được phép lưu trữ trong Shared Memory cache (mặc định thường là $256$ MB).
 *   *Tại sao quan trọng*: Nếu bạn phục vụ các mô hình phân tích video độ phân giải cao hoặc âm thanh dài, bạn cần tăng giá trị này lên để tránh các vật thể đặc trưng lớn bị từ chối cache và rơi về chế độ tính toán lại.
 
+### D. `--trust-remote-code`
+*   *Ý nghĩa*: Cho phép vLLM chạy mã nguồn tải trực tiếp từ repository của mô hình trên HuggingFace.
+*   *Tại sao quan trọng*: Rất nhiều dòng mô hình LMM mới (như InternVL, Florence-2) sử dụng các định nghĩa lớp tùy chỉnh chưa được hợp nhất vào thư viện `transformers` chính thống. Nếu không bật cờ này, mô hình sẽ không thể load. Tuy nhiên, việc bật cờ này trong môi trường sản xuất có rủi ro bảo mật (chạy mã độc hại từ repo chưa kiểm định). Kỹ sư cần audit mã nguồn mô hình hoặc khóa mã hash commit của model repo.
+
+### E. `--max-model-len <int>`
+*   *Ý nghĩa*: Độ dài ngữ cảnh tối đa của mô hình mà server chấp nhận.
+*   *Tại sao quan trọng*: Khác với văn bản ngắn, mỗi bức ảnh/video đưa vào sẽ tiêu tốn hàng trăm đến hàng ngàn tokens. Nếu người dùng gửi 3 tấm ảnh kèm câu hỏi, dung lượng prompt có thể vượt quá $2000$ tokens ngay lập tức. Nếu `--max-model-len` cấu hình quá thấp (ví dụ mặc định $2048$), hệ thống sẽ từ chối xử lý hoặc báo lỗi do không đủ ngữ cảnh để sinh câu trả lời. Bạn cần tính toán độ dài này hợp lý để bao phủ cả visual tokens và độ dài text mong muốn.
+
+### F. `--gpu-memory-utilization <float>`
+*   *Ý nghĩa*: Tỷ lệ bộ nhớ VRAM của GPU mà vLLM được phép sử dụng (mặc định $0.90$).
+*   *Tại sao quan trọng*: Khi chạy LLM thuần văn bản, hầu hết VRAM còn lại được cấp phát cho KV Cache. Tuy nhiên, ở các mô hình VLM, Vision Tower và Projector chiếm dung lượng VRAM cố định đáng kể, đồng thời pha Prefill ảnh yêu cầu lượng bộ nhớ kích hoạt (activation memory) rất lớn. Nếu đặt tỷ lệ này quá sát ($0.95$), GPU rất dễ bị OOM trong quá trình prefill batch ảnh lớn. Đối với VLM, kỹ sư thường hạ tỷ lệ này xuống $0.80$ hoặc $0.85$ để tạo ra một khoảng đệm an toàn (headroom) cho Vision Tower hoạt động ổn định.
+
 ---
 
 ## 2. Chunked Prefill - Cứu cánh cho độ trễ của VLM
