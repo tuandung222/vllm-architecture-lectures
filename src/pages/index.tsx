@@ -76,217 +76,217 @@ const Lectures: LectureItem[] = [
     number: 'Bài 0',
     title: 'Kiến thức Hệ điều hành bổ trợ',
     desc: 'Hiểu cơ chế phân trang bộ nhớ (Paging, Page Table), giao tiếp đa tiến trình (ZMQ, Shared Memory) dành cho AI Serving.',
-    path: '/docs/lesson_0_os_fundamentals',
+    path: '/docs/system_foundations/lesson_0_os_fundamentals',
     category: 'Background'
   },
   {
     number: 'Bài 0.1',
     title: 'Cấu tạo Phần cứng GPU & Bản chất Prefill/Decode',
     desc: 'Bản chất vật lý của GPU (SMs, HBM, SRAM), tính toán GEMM (Compute-bound) vs nạp weight (Memory-bound) và mô hình Roofline.',
-    path: '/docs/lesson_0_gpu_hardware',
+    path: '/docs/system_foundations/lesson_0_gpu_hardware',
     category: 'Background'
   },
   {
     number: 'Bài 1',
     title: 'Autoregressive Serving & Memory Bottlenecks',
     desc: 'Tại sao LLM serving bị nghẽn băng thông bộ nhớ? Công thức tính toán KV Cache thực tế và thách thức phân mảnh bộ nhớ.',
-    path: '/docs/lesson_1_memory_bottleneck',
+    path: '/docs/single_node_memory_scheduling/lesson_1_memory_bottleneck',
     category: 'Core Theory'
   },
   {
     number: 'Bài 1.1',
     title: 'Chuyển dịch Decode sang Compute-bound',
     desc: 'Chứng minh toán học về sự thay đổi của Arithmetic Intensity theo Batch Size, cơ chế khấu hao trọng số trên SRAM và giới hạn phần cứng.',
-    path: '/docs/lesson_1_1_batch_size_compute_bound',
+    path: '/docs/single_node_memory_scheduling/lesson_1_1_batch_size_compute_bound',
     category: 'Core Theory'
   },
   {
     number: 'Bài 2',
     title: 'PagedAttention & Block Allocation',
     desc: 'Thiết kế PagedAttention, cơ chế Copy-on-Write (CoW) trong Parallel Sampling và cách ánh xạ logical sang physical blocks.',
-    path: '/docs/lesson_2_paged_attention',
+    path: '/docs/single_node_memory_scheduling/lesson_2_paged_attention',
     category: 'Core Theory'
   },
   {
     number: 'Bài 2.1',
     title: 'Phân tách Kiến trúc Attention Backends',
     desc: 'Tách biệt Memory Layout (Paged KV Cache) khỏi Compute Kernels. Phân tích FlashAttention-2, FlashInfer, Triton, và FlexAttention.',
-    path: '/docs/lesson_2_1_attention_backends',
+    path: '/docs/single_node_memory_scheduling/lesson_2_1_attention_backends',
     category: 'Core Theory'
   },
   {
     number: 'Bài 2.2',
     title: 'RadixAttention & Prefix Caching',
     desc: 'Cơ chế Automatic Prefix Caching (APC) qua cây tiền tố Radix Tree, thuật toán LRU Eviction giải phóng block khi cạn bộ nhớ GPU.',
-    path: '/docs/lesson_2_2_prefix_caching',
+    path: '/docs/single_node_memory_scheduling/lesson_2_2_prefix_caching',
     category: 'Core Theory'
   },
   {
     number: 'Bài 3',
     title: 'Continuous Batching & Preemption',
     desc: 'Giải thuật Continuous Batching, giải pháp thu hồi bộ nhớ Recomputation vs Swapping, kỹ thuật Chunked Prefill giảm giật cục độ trễ.',
-    path: '/docs/lesson_3_continuous_batching',
+    path: '/docs/single_node_memory_scheduling/lesson_3_continuous_batching',
     category: 'Core Theory'
   },
   {
     number: 'Bài 3.2',
     title: 'Chunked Prefill & Mixed Batching',
     desc: 'Bẻ nhỏ các prompt prefill siêu dài thành các chunk kích thước cố định chạy đan xen với decode, loại bỏ hoàn toàn hiện tượng nghẽn.',
-    path: '/docs/lesson_3_2_chunked_prefill',
+    path: '/docs/single_node_memory_scheduling/lesson_3_2_chunked_prefill',
     category: 'Core Theory'
   },
   {
     number: 'Bài 4',
     title: 'Async Serving, Concurrency & Streaming',
     desc: 'Lập trình async, cơ chế ZMQ Router-Dealer, Server-Sent Events (SSE) để stream token và hủy bỏ request (Abort) khi ngắt kết nối.',
-    path: '/docs/lesson_4_async_concurrency',
+    path: '/docs/decoupled_engine_async/lesson_4_async_concurrency',
     category: 'Core Theory'
   },
   {
     number: 'Bài 4.1',
     title: 'SHM & ZeroMQ IPC trong Decoupled Engine',
     desc: 'Phân tách tiến trình API (FastAPI) và GPU Engine. Giao tiếp qua ZeroMQ Router-Dealer và truyền tải Zero-copy qua Shared Memory.',
-    path: '/docs/lesson_4_1_shared_memory_ipc',
+    path: '/docs/decoupled_engine_async/lesson_4_1_shared_memory_ipc',
     category: 'Core Theory'
   },
   {
     number: 'Bài 5',
     title: 'Codebase Deep Dive: Scheduler & Block Manager',
     desc: 'Khảo sát mã nguồn vLLM v1: RequestQueue, Scheduler (budget token), KVCacheManager (quản lý bảng trang) và EngineCore.',
-    path: '/docs/lesson_5_scheduler_code',
+    path: '/docs/vllm_core_codebase/lesson_5_scheduler_code',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 6',
     title: 'Codebase Deep Dive: Distributed Executor & GPU Workers',
     desc: 'Phân tích cơ chế suy luận phân tán (TP/PP) qua NCCL, quy trình đo đạc VRAM (Memory Profiling) và tối ưu hóa qua CUDA Graphs.',
-    path: '/docs/lesson_6_distributed_worker',
+    path: '/docs/distributed_multi_gpu/lesson_6_distributed_worker',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 6.2',
     title: 'Song song Tensor & Giao tiếp NCCL',
     desc: 'Mổ xẻ toán học chia ma trận Column/Row Parallel của Megatron-LM, giải thuật Ring-based All-Reduce truyền thông GPU liên kết NVLink.',
-    path: '/docs/lesson_6_2_distributed_comm_nccl',
+    path: '/docs/distributed_multi_gpu/lesson_6_2_distributed_comm_nccl',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 6.3',
     title: 'CUDA Graph & Shape Bucketing',
     desc: 'Giảm thiểu CPU launch overhead bằng CUDA Graphs, kỹ thuật đắp đệm Shape Bucketing để phục vụ batch size biến đổi linh động.',
-    path: '/docs/lesson_6_3_cuda_graph_bucketing',
+    path: '/docs/distributed_multi_gpu/lesson_6_3_cuda_graph_bucketing',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 6.4',
     title: 'Ray vs Multiprocessing: Điều phối Worker & Xử lý lỗi',
     desc: 'Bản chất Ray actor overhead, kiến trúc MultiprocExecutor cục bộ qua ZeroMQ/Shared Memory, và cơ chế phát hiện crash GPU OOM.',
-    path: '/docs/lesson_6_4_ray_multiprocessing_orchestration',
+    path: '/docs/distributed_multi_gpu/lesson_6_4_ray_multiprocessing_orchestration',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 6.5',
     title: 'Phục vụ MoE trên Multi-GPU: Expert Parallelism & EPLB',
     desc: 'Giao tiếp All-to-All trong EP routing, lệch tải chuyên gia (expert imbalance), và giải thuật cân bằng expert bằng EPLB.',
-    path: '/docs/lesson_6_5_moe_expert_parallelism_eplb',
+    path: '/docs/distributed_multi_gpu/lesson_6_5_moe_expert_parallelism_eplb',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 6.6',
     title: 'NCCL Bottlenecks & Tối ưu hóa mạng phục vụ',
     desc: 'Lý do All-Reduce nghẽn ở decode, so sánh vật lý NVLink vs PCIe, và cẩm nang tinh chỉnh biến môi trường NCCL thực chiến.',
-    path: '/docs/lesson_6_6_nccl_bottlenecks_networking',
+    path: '/docs/distributed_multi_gpu/lesson_6_6_nccl_bottlenecks_networking',
     category: 'Optimization'
   },
   {
     number: 'Bài 6.7',
     title: 'Context Parallelism & Ring Attention',
     desc: 'Sequence dimension sharding qua cp_utils.py cho chuỗi 1M+ tokens, và cơ chế xoay vòng KV tensor qua giải thuật Ring Attention.',
-    path: '/docs/lesson_6_7_context_parallelism_ring_attention',
+    path: '/docs/distributed_multi_gpu/lesson_6_7_context_parallelism_ring_attention',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 6.8',
     title: 'Data Parallelism (DP) Replicas & API Routing',
     desc: 'Nhân bản serving replicas để tăng throughput, các giải thuật load balancing và cơ chế Prefix-Aware Routing chống phân mảnh cache.',
-    path: '/docs/lesson_6_8_data_parallelism_replicas_routing',
+    path: '/docs/distributed_multi_gpu/lesson_6_8_data_parallelism_replicas_routing',
     category: 'Optimization'
   },
   {
     number: 'Bài 7',
     title: 'Kỹ thuật Tối ưu hóa Nâng cao',
     desc: 'Phân tích Speculative Decoding (giải mã suy đoán), nạp động Multi-LoRA (Punica/SGMV kernels) và lượng hóa mô hình.',
-    path: '/docs/lesson_7_advanced_serving',
+    path: '/docs/speculative_decoding_disaggregation/lesson_7_advanced_serving',
     category: 'Optimization'
   },
   {
     number: 'Bài 7.1',
     title: 'Chi tiết Lượng hóa: AWQ vs Activation Quantization',
     desc: 'So sánh chi tiết lượng hóa Weight-Only (AWQ) bảo vệ salient weights vs lượng hóa Activation và FP8/W8A8/KV Cache.',
-    path: '/docs/lesson_7_quantization_deep_dive',
+    path: '/docs/vram_optimization/lesson_7_quantization_deep_dive',
     category: 'Optimization'
   },
   {
     number: 'Bài 7.2',
     title: 'Toán học & Cache trong Speculative Decoding',
     desc: 'Chứng minh giải thuật Rejection Sampling kiểm chứng token nháp, luồng quản lý và rollback KV Cache tức thì ở Block Manager.',
-    path: '/docs/lesson_7_2_speculative_decoding_deep_dive',
+    path: '/docs/speculative_decoding_disaggregation/lesson_7_2_speculative_decoding_deep_dive',
     category: 'Optimization'
   },
   {
     number: 'Bài 7.2.1',
     title: 'Đi sâu mã nguồn: Cách vLLM hiện thực hóa Speculative Decoding',
     desc: 'Thiết kế Worker v0 vs v1, luồng Propose-Verify trong model_runner.py, và chi tiết RejectionSampler Triton kernels.',
-    path: '/docs/lesson_7_2_1_speculative_decoding_vllm_impl',
+    path: '/docs/speculative_decoding_disaggregation/lesson_7_2_1_speculative_decoding_vllm_impl',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 7.2.2',
     title: 'Triển khai Speculative Decoding trên Production',
     desc: 'So sánh các phương pháp (Medusa, EAGLE, MTP, Ngram), tham số cấu hình CLI, cạm bẫy TP mismatch, và giám sát Acceptance Rate.',
-    path: '/docs/lesson_7_2_2_speculative_decoding_production',
+    path: '/docs/speculative_decoding_disaggregation/lesson_7_2_2_speculative_decoding_production',
     category: 'Optimization'
   },
   {
     number: 'Bài 7.3',
     title: 'Multi-LoRA Serving & SGMV/Punica',
     desc: 'Phục vụ hàng ngàn LoRA adapters đồng thời bằng custom kernels BGMV (cho decode) và SGMV (cho prefill), quản lý cache swap qua PCIe.',
-    path: '/docs/lesson_7_3_multi_lora_serving',
+    path: '/docs/vram_optimization/lesson_7_3_multi_lora_serving',
     category: 'Optimization'
   },
   {
     number: 'Bài 7.4',
     title: 'Phân rã Prefill & Decode',
     desc: 'Kiến trúc disaggregated serving tách riêng node prefill (compute-bound) và node decode (memory-bound), truyền KV Cache qua GPUDirect RDMA.',
-    path: '/docs/lesson_7_4_prefill_decode_disaggregation',
+    path: '/docs/speculative_decoding_disaggregation/lesson_7_4_prefill_decode_disaggregation',
     category: 'Optimization'
   },
   {
     number: 'Bài 7.5',
     title: 'Kiến trúc nạp dữ liệu Multimodal trong vLLM',
     desc: 'Cơ chế nạp visual tokens qua Multimodal Registry, inputs processing và projector mapping từ raw pixels sang embeddings.',
-    path: '/docs/lesson_7_5_multimodal_architecture_vllm',
+    path: '/docs/multimodal_serving/lesson_7_5_multimodal_architecture_vllm',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 7.6',
     title: 'Quản lý bộ đệm & VRAM cho Multimodal Serving',
     desc: 'Đệm shared memory zero-copy truyền tải tensor ảnh, và cơ chế khống chế giới hạn tài nguyên qua MultiModalBudget.',
-    path: '/docs/lesson_7_6_multimodal_cache_memory',
+    path: '/docs/multimodal_serving/lesson_7_6_multimodal_cache_memory',
     category: 'Deep Dive Code'
   },
   {
     number: 'Bài 7.7',
     title: 'Cấu hình Production & Gotchas trong Multimodal Serving',
     desc: 'Tác dụng của các cờ CLI đặc thù, cấu hình Chunked Prefill cho VLM tránh lag, và cạm bẫy TP size với Vision Tower.',
-    path: '/docs/lesson_7_7_multimodal_production_gotchas',
+    path: '/docs/multimodal_serving/lesson_7_7_multimodal_production_gotchas',
     category: 'Optimization'
   },
   {
     number: 'Bài 8',
     title: 'Thiết kế & Hiện thực Toy Serving Engine',
     desc: 'Tự tay lập trình một Serving Engine tối giản bằng Python: Page allocator, Continuous Scheduler, FastAPI SSE Streaming và Abort.',
-    path: '/docs/lesson_8_toy_serving_engine',
+    path: '/docs/toy_serving_engine/lesson_8_toy_serving_engine',
     category: 'Practice'
   }
 ];
@@ -403,7 +403,7 @@ export default function Home(): ReactNode {
               <Link
                 className="button button--primary button--lg"
                 style={{ borderRadius: '8px', padding: '0.7rem 1.8rem', fontWeight: 600 }}
-                to="/docs/lesson_8_toy_serving_engine">
+                to="/docs/toy_serving_engine/lesson_8_toy_serving_engine">
                 Đến Bài Học Thực Hành
               </Link>
               <Link

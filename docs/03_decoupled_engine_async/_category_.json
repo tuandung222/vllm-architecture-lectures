@@ -1,0 +1,8 @@
+{
+  "label": "Module 3: Kiến trúc Engine Tách rời & Xử lý Bất đồng bộ",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Mô hình đa tiến trình, xử lý bất đồng bộ async/await và Zero-copy Shared Memory IPC."
+  }
+}

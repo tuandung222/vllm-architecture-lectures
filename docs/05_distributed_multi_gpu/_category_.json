@@ -1,0 +1,8 @@
+{
+  "label": "Module 5: Kỹ thuật Phục vụ Phân tán & Đa GPU",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Song song Tensor/Context/Data, MoE Expert Parallelism và tối ưu truyền thông NCCL."
+  }
+}

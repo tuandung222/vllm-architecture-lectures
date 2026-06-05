@@ -109,15 +109,15 @@ const config: Config = {
           items: [
             {
               label: 'Bài 0: Kiến thức Hệ điều hành',
-              to: '/docs/lesson_0_os_fundamentals',
+              to: '/docs/system_foundations/lesson_0_os_fundamentals',
             },
             {
               label: 'Bài 1: Autoregressive & Memory Bottlenecks',
-              to: '/docs/lesson_1_memory_bottleneck',
+              to: '/docs/single_node_memory_scheduling/lesson_1_memory_bottleneck',
             },
             {
               label: 'Bài 8: Thực hành Serving Engine',
-              to: '/docs/lesson_8_toy_serving_engine',
+              to: '/docs/toy_serving_engine/lesson_8_toy_serving_engine',
             },
           ],
         },

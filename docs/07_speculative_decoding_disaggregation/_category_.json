@@ -1,0 +1,8 @@
+{
+  "label": "Module 7: Giải mã Suy đoán & Kiến trúc Phân rã Prefill-Decode",
+  "position": 7,
+  "link": {
+    "type": "generated-index",
+    "description": "Tăng tốc suy luận qua Speculative Decoding và phân tách vật lý cụm Prefill/Decode."
+  }
+}

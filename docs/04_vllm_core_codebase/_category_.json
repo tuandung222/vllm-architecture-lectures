@@ -1,0 +1,8 @@
+{
+  "label": "Module 4: Phân tích Mã nguồn vLLM Core",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Khảo sát chi tiết mã nguồn Scheduler, Block Manager và GPU Workers của vLLM v1."
+  }
+}

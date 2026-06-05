@@ -1,0 +1,8 @@
+{
+  "label": "Module 8: Phục vụ Mô hình Đa phương thức (LMM/VLM Serving)",
+  "position": 8,
+  "link": {
+    "type": "generated-index",
+    "description": "Kiến trúc Vision Tower, Projector, shared memory caching và tối ưu hóa VRAM cho VLMs."
+  }
+}

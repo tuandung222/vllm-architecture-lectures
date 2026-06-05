@@ -5,7 +5,7 @@ sidebar_label: "Bài 1.1: Chuyển dịch Decode sang Compute-bound"
 
 # Bài 1.1: Phân tích Chuyển dịch Decode sang Compute-bound khi Batch Size cực lớn
 
-Trong [Bài 0.1](./lesson_0_gpu_hardware.md) và [Bài 1](./lesson_1_memory_bottleneck.md), chúng ta đã làm quen với kết luận kinh điển: **Prefill là Compute-bound, còn Decode là Memory-bound**. 
+Trong [Bài 0.1](../01_system_foundations/lesson_0_gpu_hardware.md) và [Bài 1](./lesson_1_memory_bottleneck.md), chúng ta đã làm quen với kết luận kinh điển: **Prefill là Compute-bound, còn Decode là Memory-bound**. 
 
 Tuy nhiên, kết luận này chỉ đúng đối với các hệ thống serving phục vụ số lượng người dùng đồng thời nhỏ (Batch Size thấp). Trong môi trường serving công nghiệp quy mô lớn (như ChatGPT, Gemini) với hàng ngàn request đồng thời, khi **Batch Size ($B$) được đẩy lên cực lớn (ví dụ: $B \ge 512$ hoặc $1024$ trên GPU H100)**, pha Decode sẽ trải qua một sự chuyển dịch vật lý kỳ diệu: **Nó chuyển từ Memory-bound sang Compute-bound**.
 
